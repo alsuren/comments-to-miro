@@ -1,34 +1,29 @@
 {
-  "name": "comments-to-miro",
-  "version": "0.1.0",
+  "name": "plugin-boilerplate",
+  "version": "1.0.0",
+  "description": "",
   "private": true,
-  "homepage": "https://alsuren.github.io/comments-to-miro",
-  "dependencies": {
-    "@types/jest": "24.0.11",
-    "@types/node": "11.11.3",
-    "@types/react": "16.8.8",
-    "@types/react-dom": "16.8.2",
-    "gh-pages": "^2.0.1",
-    "react": "^16.8.4",
-    "react-dom": "^16.8.4",
-    "react-scripts": "2.1.8",
-    "typescript": "3.3.3333"
-  },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "predeploy": "react-scripts build",
-    "deploy": "gh-pages -d build"
+    "build": "webpack",
+    "watch": "webpack -w"
   },
-  "eslintConfig": {
-    "extends": "react-app"
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/react": "16.4.1",
+    "@types/react-dom": "16.0.6",
+    "css-loader": "^0.28.11",
+    "less": "^3.0.4",
+    "less-loader": "^4.1.0",
+    "style-loader": "^0.21.0",
+    "ts-loader": "4.4.1",
+    "typescript": "2.9.2",
+    "webpack": "4.12.0",
+    "webpack-cli": "3.0.8"
   },
-  "browserslist": [
-    ">0.2%",
-    "not dead",
-    "not ie <= 11",
-    "not op_mini all"
-  ]
+  "dependencies": {
+    "react": "16.4.1",
+    "react-dom": "16.4.1"
+  }
 }
