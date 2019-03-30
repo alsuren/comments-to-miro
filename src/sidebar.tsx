@@ -10,7 +10,7 @@ export class Root extends React.Component {
 
 	async getBoardTitle() {
 		let boardInfo = await rtb.board.info.get()
-		this.setState({boardTitle: boardInfo.title})
+		this.setState({ boardTitle: boardInfo.title })
 	}
 
 	async deleteAllContent() {
@@ -23,10 +23,10 @@ export class Root extends React.Component {
 		return (
 			<div className="container">
 				<button onClick={() => this.getBoardTitle()}>Get board title</button>
-				<br/>
+				<br />
 				<div>Board title is: {this.state.boardTitle}</div>
-				<br/>
-				<br/>
+				<br />
+				<br />
 				<button onClick={() => this.deleteAllContent()}>Delete all content</button>
 			</div>
 		)
@@ -37,7 +37,7 @@ export class Root extends React.Component {
 let el = document.getElementById('react-app');
 if (el) {
 	ReactDOM.render(
-		<Root/>,
+		<Root />,
 		el
 	)
 }

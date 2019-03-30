@@ -16,7 +16,7 @@ rtb.onReady(() => {
 				toolbarSvgIcon: icon24,
 				librarySvgIcon: icon24,
 				onClick: () => {
-					rtb.board.ui.openLibrary('library.html', {title: 'Boilerplate'})
+					rtb.board.ui.openLibrary('library.html', { title: 'Boilerplate' })
 				}
 			},
 			bottomBar: {
