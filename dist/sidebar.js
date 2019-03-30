@@ -91,6 +91,7 @@
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Root", function() { return Root; });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(7);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var react_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(16);
@@ -138,7 +139,10 @@ class Root extends react__WEBPACK_IMPORTED_MODULE_0__["Component"] {
             react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("button", { onClick: () => this.deleteAllContent() }, "Delete all content")));
     }
 }
-react_dom__WEBPACK_IMPORTED_MODULE_1__["render"](react__WEBPACK_IMPORTED_MODULE_0__["createElement"](Root, null), document.getElementById('react-app'));
+let el = document.getElementById('react-app');
+if (el) {
+    react_dom__WEBPACK_IMPORTED_MODULE_1__["render"](react__WEBPACK_IMPORTED_MODULE_0__["createElement"](Root, null), el);
+}
 
 
 /***/ }),
