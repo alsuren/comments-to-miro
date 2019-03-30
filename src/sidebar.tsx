@@ -2,7 +2,7 @@ require('./styles.less')
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 
-class Root extends React.Component {
+export class Root extends React.Component {
 
 	state = {
 		boardTitle: ''
@@ -33,7 +33,11 @@ class Root extends React.Component {
 	}
 }
 
-ReactDOM.render(
-	<Root/>,
-	document.getElementById('react-app')
-)
+
+let el = document.getElementById('react-app');
+if (el) {
+	ReactDOM.render(
+		<Root/>,
+		el
+	)
+}
