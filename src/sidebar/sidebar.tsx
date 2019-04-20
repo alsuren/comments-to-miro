@@ -1,8 +1,7 @@
 require('./styles.less')
 import * as React from 'react'
-import * as ReactDOM from 'react-dom'
 
-export class Root extends React.Component {
+export class Sidebar extends React.Component {
 
 	state = {
 		boardTitle: ''
@@ -31,13 +30,4 @@ export class Root extends React.Component {
 			</div>
 		)
 	}
-}
-
-
-let el = document.getElementById('react-app');
-if (el) {
-	ReactDOM.render(
-		<Root />,
-		el
-	)
 }

@@ -1,6 +1,6 @@
 jest.mock("./styles.less", () => jest.fn());
 
-import { Root } from "./sidebar";
+import { Sidebar } from "./sidebar";
 
 describe("deleteAllContent", () => {
   it("calls deleteById and showNotification", async () => {
@@ -15,7 +15,7 @@ describe("deleteAllContent", () => {
     };
     // @ts-ignore
     global.rtb = rtb;
-    await Root.prototype.deleteAllContent();
+    await Sidebar.prototype.deleteAllContent();
     expect(rtb.board.widgets.get).toHaveBeenCalled();
     expect(rtb.board.widgets.deleteById).toHaveBeenCalled();
     expect(rtb.showNotification).toHaveBeenCalled();

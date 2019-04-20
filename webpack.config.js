@@ -6,7 +6,7 @@ module.exports = {
 	// Tip! Just delete not using files, but main.ts is required
 	entry: {
 		main: './src/main.ts',
-		sidebar: './src/sidebar/sidebar.tsx',
+		sidebar: './src/sidebar/index.tsx',
 	},
 	module: {
 		rules: [

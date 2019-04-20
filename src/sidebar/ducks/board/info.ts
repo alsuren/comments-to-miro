@@ -1,4 +1,7 @@
-import { AnyARecord } from "dns";
+import {createSelector} from 'reselect';
+
+
+export const STORE_MOUNT_POINT = 'info';
 
 const defaultState = {
     loading: false,
@@ -24,7 +27,7 @@ interface GetInfoSuccessAction {
 }
 type Action = GetInfoRequestAction | GetInfoFailureAction | GetInfoSuccessAction;
 // Reducer
-export default function reducer(state = defaultState, action: Action) {
+export function reducer(state = defaultState, action: Action) {
     switch (action.type) {
         case GET_INFO_REQUEST: {
             return {
@@ -84,3 +87,10 @@ export const loadInfo = () => async dispatch =>  {
     }
     dispatch(loadInfoSuccess);
 }
+
+// Selectors
+
+export const selectTitle = createSelector(
+    state => state[STORE_MOUNT_POINT].info.title,
+    title => title
+)
