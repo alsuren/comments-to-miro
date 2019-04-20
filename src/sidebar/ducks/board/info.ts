@@ -80,10 +80,11 @@ export function loadInfoSuccess(info) {
 // Thunks
 
 export const loadInfo = () => async dispatch =>  {
+    dispatch(loadInfoRequest());
     try {
         let info = await rtb.board.info.get();
     } catch (err) {
-        dispatch(loadInfoFailure(err))
+        dispatch(loadInfoFailure(err));
     }
     dispatch(loadInfoSuccess);
 }
@@ -91,6 +92,11 @@ export const loadInfo = () => async dispatch =>  {
 // Selectors
 
 export const selectTitle = createSelector(
-    state => state[STORE_MOUNT_POINT].info.title,
-    title => title
+    state => state[STORE_MOUNT_POINT],
+    here => {
+        const title = here.info ? here.info.title : '';
+        const loading = here.loading ? 'Loading...' : '';
+        const err = here.err ? here.err.toString() : '';
+        return title + loading + err;
+    }
 )
