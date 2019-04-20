@@ -3,24 +3,8 @@ const icon24 = '<path fill="currentColor" fill-rule="nonzero" d="M20.156 7.762c-
 rtb.onReady(() => {
 	rtb.initialize({
 		extensionPoints: {
-			exportMenu: {
-				title: 'Boilerplate export',
-				svgIcon: icon24,
-				onClick: () => {
-					// Remember that 'modal.html' resolves relative to main.js file. So modal.html have to be in the /dist/ folder.
-					rtb.board.ui.openModal('modal.html')
-				}
-			},
-			toolbar: {
-				title: 'Boilerplate toolbar',
-				toolbarSvgIcon: icon24,
-				librarySvgIcon: icon24,
-				onClick: () => {
-					rtb.board.ui.openLibrary('library.html', { title: 'Boilerplate' })
-				}
-			},
 			bottomBar: {
-				title: 'Boilerplate bottomBar',
+				title: 'Import Comments',
 				svgIcon: icon24,
 				onClick: () => {
 					rtb.board.ui.openLeftSidebar('sidebar.html')

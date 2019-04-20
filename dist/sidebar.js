@@ -179,7 +179,7 @@ exports = module.exports = __webpack_require__(4)(false);
 
 
 // module
-exports.push([module.i, "html {\n  height: 100%;\n}\nbody {\n  height: 100%;\n  margin: 0;\n}\n.centered-for-demo {\n  height: 100%;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  flex-direction: column;\n}\n.i-am-red {\n  background-color: red;\n}\n.i-am-blue {\n  background-color: #88c1ff;\n}\n.i-am-yellow {\n  background-color: yellow;\n}\n.cats-container {\n  max-height: 100%;\n  overflow: auto;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n}\n", ""]);
+exports.push([module.i, "html {\n  height: 100%;\n}\nbody {\n  height: 100%;\n  margin: 0;\n}\n.centered-for-demo {\n  height: 100%;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  flex-direction: column;\n}\n.i-am-blue {\n  background-color: #88c1ff;\n}\n", ""]);
 
 // exports
 
