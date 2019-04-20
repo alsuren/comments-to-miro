@@ -20542,11 +20542,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var react_redux__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(29);
 /* harmony import */ var _ducks_board_info__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(59);
+/* harmony import */ var _ducks_github_comments__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(63);
 __webpack_require__(2);
 
 
 
-const Sidebar = ({ title, loadInfo }) => {
+
+const Sidebar = ({ title, loadInfo, commentCount, loadComments }) => {
     return (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { className: "container" },
         react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("button", { onClick: loadInfo }, "Get board title"),
         react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("br", null),
@@ -20555,15 +20557,22 @@ const Sidebar = ({ title, loadInfo }) => {
             title),
         react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("br", null),
         react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("br", null),
-        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("button", { onClick: () => undefined.deleteAllContent() }, "Delete all content")));
+        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("button", { onClick: loadComments }, "Get comments"),
+        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("br", null),
+        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", null,
+            "Number of comments: ",
+            commentCount),
+        "\t\t"));
 };
 function mapStateToProps(state) {
     return {
         title: Object(_ducks_board_info__WEBPACK_IMPORTED_MODULE_2__["selectTitle"])(state),
+        commentCount: Object(_ducks_github_comments__WEBPACK_IMPORTED_MODULE_3__["selectCommentCount"])(state),
     };
 }
 /* harmony default export */ __webpack_exports__["default"] = (Object(react_redux__WEBPACK_IMPORTED_MODULE_1__["connect"])(mapStateToProps, {
     loadInfo: _ducks_board_info__WEBPACK_IMPORTED_MODULE_2__["loadInfo"],
+    loadComments: _ducks_github_comments__WEBPACK_IMPORTED_MODULE_3__["loadComments"],
 })(Sidebar));
 
 
@@ -23588,14 +23597,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "loadCommentsFailure", function() { return loadCommentsFailure; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "loadCommentsSuccess", function() { return loadCommentsSuccess; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "loadComments", function() { return loadComments; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectTitle", function() { return selectTitle; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectCommentCount", function() { return selectCommentCount; });
 /* harmony import */ var reselect__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(60);
 
 const STORE_MOUNT_POINT = 'github/comments';
 const defaultState = {
     loading: false,
     err: null,
-    info: null,
+    comments: null,
 };
 // Action Types
 const GET_COMMENTS_REQUEST = 'github/comments/GET_COMMENTS_REQUEST';
@@ -23605,13 +23614,13 @@ const GET_COMMENTS_SUCCESS = 'github/comments/GET_COMMENTS_SUCCESS';
 function reducer(state = defaultState, action) {
     switch (action.type) {
         case GET_COMMENTS_REQUEST: {
-            return Object.assign({}, state, { loading: true, err: null });
+            return Object.assign({}, state, { loading: action.issue, err: null });
         }
         case GET_COMMENTS_FAILURE: {
             return Object.assign({}, state, { loading: false, err: action.err });
         }
         case GET_COMMENTS_SUCCESS: {
-            return Object.assign({}, state, { loading: false, info: action.info });
+            return Object.assign({}, state, { loading: false, comments: action.comments });
         }
         default: {
             return state;
@@ -23619,8 +23628,11 @@ function reducer(state = defaultState, action) {
     }
 }
 // Action Creators
-function loadCommentsRequest() {
-    return { type: GET_COMMENTS_REQUEST };
+function loadCommentsRequest(issue) {
+    return {
+        type: GET_COMMENTS_REQUEST,
+        issue,
+    };
 }
 function loadCommentsFailure(err) {
     return {
@@ -23628,31 +23640,37 @@ function loadCommentsFailure(err) {
         err,
     };
 }
-function loadCommentsSuccess(info) {
+function loadCommentsSuccess(comments) {
     return {
         type: GET_COMMENTS_SUCCESS,
-        info,
+        comments,
     };
 }
 // Thunks
 const loadComments = () => async (dispatch) => {
-    dispatch(loadCommentsRequest());
-    let info;
+    // TODO: allow users to put this into a form somewhere.
+    const issue = new URL('https://github.com/rust-lang/rfcs/pull/243');
+    const [_slash, owner, repo, _pull, issue_number] = issue.pathname.split('/');
+    const apiUrl = `https://api.github.com/repos/${owner}/${repo}/issues/${issue_number}/comments`;
+    dispatch(loadCommentsRequest(issue));
+    let comments;
     try {
-        info = await rtb.board.info.get();
+        const response = await fetch(apiUrl);
+        console.log(response.headers);
+        comments = await response.json();
     }
     catch (err) {
         dispatch(loadCommentsFailure(err));
         throw err;
     }
-    dispatch(loadCommentsSuccess(info));
+    dispatch(loadCommentsSuccess(comments));
 };
 // Selectors
-const selectTitle = Object(reselect__WEBPACK_IMPORTED_MODULE_0__["createSelector"])(state => state[STORE_MOUNT_POINT], here => {
-    const title = here.info ? here.info.title : '';
-    const loading = here.loading ? 'Loading...' : '';
+const selectCommentCount = Object(reselect__WEBPACK_IMPORTED_MODULE_0__["createSelector"])(state => state[STORE_MOUNT_POINT], here => {
+    const comments = here.comments ? here.comments.length : '';
+    const loading = here.loading ? 'Loading ' + here.loading : '';
     const err = here.err ? here.err.toString() : '';
-    return title + loading + err;
+    return comments + loading + err;
 });
 
 

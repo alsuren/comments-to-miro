@@ -6,7 +6,7 @@ export const STORE_MOUNT_POINT = 'github/comments';
 const defaultState = {
     loading: false,
     err: null,
-    info: null,
+    comments: null,
 };
 
 // Action Types
@@ -16,6 +16,7 @@ const GET_COMMENTS_SUCCESS = 'github/comments/GET_COMMENTS_SUCCESS';
 
 interface GetCommentsRequestAction {
     readonly type: typeof GET_COMMENTS_REQUEST;
+    readonly issue: String;
 }
 interface GetCommentsFailureAction {
     readonly type: typeof GET_COMMENTS_FAILURE;
@@ -23,7 +24,7 @@ interface GetCommentsFailureAction {
 }
 interface GetCommentsSuccessAction {
     readonly type: typeof GET_COMMENTS_SUCCESS;
-    readonly info: {};
+    readonly comments: {};
 }
 type Action = GetCommentsRequestAction | GetCommentsFailureAction | GetCommentsSuccessAction;
 // Reducer
@@ -32,7 +33,7 @@ export function reducer(state = defaultState, action: Action) {
         case GET_COMMENTS_REQUEST: {
             return {
                 ...state,
-                loading: true,
+                loading: action.issue,
                 err: null,
             };
         }
@@ -47,7 +48,7 @@ export function reducer(state = defaultState, action: Action) {
             return {
                 ...state,
                 loading: false,
-                info: action.info,
+                comments: action.comments,
             };
         }
 
@@ -59,8 +60,11 @@ export function reducer(state = defaultState, action: Action) {
 
 // Action Creators
 
-export function loadCommentsRequest(): Action {
-    return { type: GET_COMMENTS_REQUEST };
+export function loadCommentsRequest(issue): Action {
+    return {
+        type: GET_COMMENTS_REQUEST,
+        issue,
+    };
 }
 
 export function loadCommentsFailure(err): Action {
@@ -70,35 +74,41 @@ export function loadCommentsFailure(err): Action {
     };
 }
 
-export function loadCommentsSuccess(info): Action {
+export function loadCommentsSuccess(comments): Action {
     return {
         type: GET_COMMENTS_SUCCESS,
-        info,
+        comments,
     };
 }
 
 // Thunks
 
 export const loadComments = () => async dispatch =>  {
-    dispatch(loadCommentsRequest());
-    let info;
+    // TODO: allow users to put this into a form somewhere.
+    const issue = new URL('https://github.com/rust-lang/rfcs/pull/243')
+    const [_slash, owner, repo, _pull, issue_number] = issue.pathname.split('/')
+    const apiUrl = `https://api.github.com/repos/${owner}/${repo}/issues/${issue_number}/comments`
+    dispatch(loadCommentsRequest(issue));
+    let comments;
     try {
-        info = await rtb.board.info.get();
+        const response = await fetch(apiUrl);
+        console.log(response.headers)
+        comments = await response.json();
     } catch (err) {
         dispatch(loadCommentsFailure(err));
         throw err;
     }
-    dispatch(loadCommentsSuccess(info));
+    dispatch(loadCommentsSuccess(comments));
 }
 
 // Selectors
 
-export const selectTitle = createSelector(
+export const selectCommentCount = createSelector(
     state => state[STORE_MOUNT_POINT],
     here => {
-        const title = here.info ? here.info.title : '';
-        const loading = here.loading ? 'Loading...' : '';
+        const comments = here.comments ? here.comments.length : '';
+        const loading = here.loading ? 'Loading ' + here.loading : '';
         const err = here.err ? here.err.toString() : '';
-        return title + loading + err;
+        return comments + loading + err;
     }
 )

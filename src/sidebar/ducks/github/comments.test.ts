@@ -5,13 +5,13 @@ describe("loadCommentsRequest", () => {
     expect(
       comments.reducer(
         undefined,
-        comments.loadCommentsRequest(),
+        comments.loadCommentsRequest('hi'),
       )
     ).toEqual(
       {
-        loading: true,
+        loading: 'hi',
         err: null,
-        info: null,
+        comments: null,
       }
     )
   })
@@ -28,7 +28,7 @@ describe("loadCommentsFailure", () => {
       {
         loading: false,
         err: 'nah mate',
-        info: null,
+        comments: null,
       }
     )
   })
@@ -45,28 +45,21 @@ describe("loadCommentsSuccess", () => {
       {
         loading: false,
         err: null,
-        info: 'yeah mate',
+        comments: 'yeah mate',
       }
     )
   })
 })
 
 describe("loadComments", () => {
-  it("calls info.get() and dispatches the result", async () => {
-    let rtb = {
-      board: {
-        info: {
-          get: jest.fn(async () => 'yeah mate'),
-        }
-      }    
-    };
+  it("calls comments.get() and dispatches the result", async () => { 
     // @ts-ignore
-    global.rtb = rtb;
+    global.fetch = jest.fn(async () => ({json: async () => ['yeah mate']}));
     const dispatch = jest.fn()
     await comments.loadComments()(dispatch);
-    expect(rtb.board.info.get).toHaveBeenCalled();
+    expect(fetch).toBeCalledWith('https://api.github.com/repos/rust-lang/rfcs/issues/243/comments');
     expect(dispatch).toHaveBeenLastCalledWith(
-      comments.loadCommentsSuccess('yeah mate')
+      comments.loadCommentsSuccess(['yeah mate'])
     )
   });
 });
