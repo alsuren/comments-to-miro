@@ -3,13 +3,6 @@ import * as React from 'react'
 import { connect } from 'react-redux';
 import { loadInfo, selectTitle } from './ducks/board/info';
 
-// async deleteAllContent() {
-// 	let allObjects = await rtb.board.widgets.get()
-// 	await rtb.board.widgets.deleteById(allObjects.map(object => object.id))
-// 	await rtb.showNotification('Content has been deleted')
-// }
-
-
 export const Sidebar = ({title, loadInfo}) => {
 	return (
 		<div className="container">

@@ -20546,11 +20546,6 @@ __webpack_require__(2);
 
 
 
-// async deleteAllContent() {
-// 	let allObjects = await rtb.board.widgets.get()
-// 	await rtb.board.widgets.deleteById(allObjects.map(object => object.id))
-// 	await rtb.showNotification('Content has been deleted')
-// }
 const Sidebar = ({ title, loadInfo }) => {
     return (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { className: "container" },
         react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("button", { onClick: loadInfo }, "Get board title"),
