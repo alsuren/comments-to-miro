@@ -34,18 +34,35 @@ describe("loadCommentsFailure", () => {
   })
 })
 
-describe("loadCommentsSuccess", () => {
+describe("loadCommentsProgress", () => {
   it("Sets loading in the store", () => {
     expect(
       comments.reducer(
         undefined,
-        comments.loadCommentsSuccess('yeah mate'),
+        comments.loadCommentsProgress(['yeah mate']),
       )
     ).toEqual(
       {
         loading: false,
         err: null,
-        comments: 'yeah mate',
+        comments: ['yeah mate'],
+      }
+    )
+  })
+})
+
+describe("loadCommentsSuccess", () => {
+  it("Sets loading in the store", () => {
+    expect(
+      comments.reducer(
+        undefined,
+        comments.loadCommentsSuccess(),
+      )
+    ).toEqual(
+      {
+        loading: false,
+        err: null,
+        comments: null,
       }
     )
   })
@@ -54,12 +71,18 @@ describe("loadCommentsSuccess", () => {
 describe("loadComments", () => {
   it("calls comments.get() and dispatches the result", async () => { 
     // @ts-ignore
-    global.fetch = jest.fn(async () => ({json: async () => ['yeah mate']}));
+    global.fetch = jest.fn(async () => (
+      {
+        json: async () => ['yeah mate'],
+        headers: {
+          get: () => ''
+        },
+      }));
     const dispatch = jest.fn()
     await comments.loadComments()(dispatch);
     expect(fetch).toBeCalledWith('https://api.github.com/repos/rust-lang/rfcs/issues/243/comments');
-    expect(dispatch).toHaveBeenLastCalledWith(
-      comments.loadCommentsSuccess(['yeah mate'])
+    expect(dispatch).toHaveBeenCalledWith(
+      comments.loadCommentsProgress(['yeah mate'])
     )
   });
 });
