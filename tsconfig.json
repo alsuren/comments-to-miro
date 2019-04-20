@@ -6,7 +6,8 @@
     "allowUnreachableCode": true,
     "experimentalDecorators": true,
     "module": "es6",
-    "target": "es6",
+    "target": "es2018",
+    "lib": ["es2018", "dom"],
     "moduleResolution": "node",
     "jsx": "react",
     "allowJs": true

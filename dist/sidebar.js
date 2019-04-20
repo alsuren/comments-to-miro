@@ -23341,14 +23341,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "loadInfo", function() { return loadInfo; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectTitle", function() { return selectTitle; });
 /* harmony import */ var reselect__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(60);
-var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 
 const STORE_MOUNT_POINT = 'info';
 const defaultState = {
@@ -23394,16 +23386,16 @@ function loadInfoSuccess(info) {
     };
 }
 // Thunks
-const loadInfo = () => (dispatch) => __awaiter(undefined, void 0, void 0, function* () {
+const loadInfo = () => async (dispatch) => {
     dispatch(loadInfoRequest());
     try {
-        let info = yield rtb.board.info.get();
+        let info = await rtb.board.info.get();
     }
     catch (err) {
         dispatch(loadInfoFailure(err));
     }
     dispatch(loadInfoSuccess);
-});
+};
 // Selectors
 const selectTitle = Object(reselect__WEBPACK_IMPORTED_MODULE_0__["createSelector"])(state => state[STORE_MOUNT_POINT], here => {
     const title = here.info ? here.info.title : '';
