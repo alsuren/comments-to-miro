@@ -23342,16 +23342,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectTitle", function() { return selectTitle; });
 /* harmony import */ var reselect__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(60);
 
-const STORE_MOUNT_POINT = 'info';
+const STORE_MOUNT_POINT = 'board/info';
 const defaultState = {
     loading: false,
     err: null,
     info: null,
 };
 // Action Types
-const GET_INFO_REQUEST = 'info/GET_INFO_REQUEST';
-const GET_INFO_FAILURE = 'info/GET_INFO_FAILURE';
-const GET_INFO_SUCCESS = 'info/GET_INFO_SUCCESS';
+const GET_INFO_REQUEST = 'board/info/GET_INFO_REQUEST';
+const GET_INFO_FAILURE = 'board/info/GET_INFO_FAILURE';
+const GET_INFO_SUCCESS = 'board/info/GET_INFO_SUCCESS';
 // Reducer
 function reducer(state = defaultState, action) {
     switch (action.type) {

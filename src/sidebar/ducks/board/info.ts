@@ -1,7 +1,7 @@
 import {createSelector} from 'reselect';
 
 
-export const STORE_MOUNT_POINT = 'info';
+export const STORE_MOUNT_POINT = 'board/info';
 
 const defaultState = {
     loading: false,
@@ -10,9 +10,9 @@ const defaultState = {
 };
 
 // Action Types
-const GET_INFO_REQUEST = 'info/GET_INFO_REQUEST';
-const GET_INFO_FAILURE = 'info/GET_INFO_FAILURE';
-const GET_INFO_SUCCESS = 'info/GET_INFO_SUCCESS';
+const GET_INFO_REQUEST = 'board/info/GET_INFO_REQUEST';
+const GET_INFO_FAILURE = 'board/info/GET_INFO_FAILURE';
+const GET_INFO_SUCCESS = 'board/info/GET_INFO_SUCCESS';
 
 interface GetInfoRequestAction {
     readonly type: typeof GET_INFO_REQUEST;
