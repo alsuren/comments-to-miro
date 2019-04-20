@@ -59,18 +59,18 @@ export function reducer(state = defaultState, action: Action) {
 
 // Action Creators
 
-export function loadInfoRequest() {
+export function loadInfoRequest(): Action {
     return { type: GET_INFO_REQUEST };
 }
 
-export function loadInfoFailure(err) {
+export function loadInfoFailure(err): Action {
     return {
         type: GET_INFO_FAILURE,
         err,
     };
 }
 
-export function loadInfoSuccess(info) {
+export function loadInfoSuccess(info): Action {
     return {
         type: GET_INFO_SUCCESS,
         info,
