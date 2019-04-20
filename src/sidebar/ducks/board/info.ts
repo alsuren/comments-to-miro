@@ -81,12 +81,14 @@ export function loadInfoSuccess(info) {
 
 export const loadInfo = () => async dispatch =>  {
     dispatch(loadInfoRequest());
+    let info;
     try {
-        let info = await rtb.board.info.get();
+        info = await rtb.board.info.get();
     } catch (err) {
         dispatch(loadInfoFailure(err));
+        throw err;
     }
-    dispatch(loadInfoSuccess);
+    dispatch(loadInfoSuccess(info));
 }
 
 // Selectors
