@@ -1,0 +1,25 @@
+// In example styles shared between modal, library and sidebar extension points.
+// But you can you can use unique style for each extension point — just create new less file and import it in target extension point.
+
+html {
+  height: 100%;
+}
+
+body {
+  height: 100%;
+  margin: 0;
+}
+
+.centered-for-demo {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+@blue: #88c1ff;
+
+.i-am-blue {
+  background-color: @blue;
+}
