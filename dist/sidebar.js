@@ -23574,11 +23574,94 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "rootReducer", function() { return rootReducer; });
 /* harmony import */ var redux__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(46);
 /* harmony import */ var _board_info__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(59);
+/* harmony import */ var _github_comments__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(63);
 // taken from https://medium.com/@DjamelH/ducks-redux-reducer-bundles-44267f080d22
+
 
 
 const rootReducer = Object(redux__WEBPACK_IMPORTED_MODULE_0__["combineReducers"])({
     [_board_info__WEBPACK_IMPORTED_MODULE_1__["STORE_MOUNT_POINT"]]: _board_info__WEBPACK_IMPORTED_MODULE_1__["reducer"],
+    [_github_comments__WEBPACK_IMPORTED_MODULE_2__["STORE_MOUNT_POINT"]]: _github_comments__WEBPACK_IMPORTED_MODULE_2__["reducer"],
+});
+
+
+/***/ }),
+/* 63 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "STORE_MOUNT_POINT", function() { return STORE_MOUNT_POINT; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "reducer", function() { return reducer; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "loadCommentsRequest", function() { return loadCommentsRequest; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "loadCommentsFailure", function() { return loadCommentsFailure; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "loadCommentsSuccess", function() { return loadCommentsSuccess; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "loadComments", function() { return loadComments; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectTitle", function() { return selectTitle; });
+/* harmony import */ var reselect__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(60);
+
+const STORE_MOUNT_POINT = 'github/comments';
+const defaultState = {
+    loading: false,
+    err: null,
+    info: null,
+};
+// Action Types
+const GET_COMMENTS_REQUEST = 'github/comments/GET_COMMENTS_REQUEST';
+const GET_COMMENTS_FAILURE = 'github/comments/GET_COMMENTS_FAILURE';
+const GET_COMMENTS_SUCCESS = 'github/comments/GET_COMMENTS_SUCCESS';
+// Reducer
+function reducer(state = defaultState, action) {
+    switch (action.type) {
+        case GET_COMMENTS_REQUEST: {
+            return Object.assign({}, state, { loading: true, err: null });
+        }
+        case GET_COMMENTS_FAILURE: {
+            return Object.assign({}, state, { loading: false, err: action.err });
+        }
+        case GET_COMMENTS_SUCCESS: {
+            return Object.assign({}, state, { loading: false, info: action.info });
+        }
+        default: {
+            return state;
+        }
+    }
+}
+// Action Creators
+function loadCommentsRequest() {
+    return { type: GET_COMMENTS_REQUEST };
+}
+function loadCommentsFailure(err) {
+    return {
+        type: GET_COMMENTS_FAILURE,
+        err,
+    };
+}
+function loadCommentsSuccess(info) {
+    return {
+        type: GET_COMMENTS_SUCCESS,
+        info,
+    };
+}
+// Thunks
+const loadComments = () => async (dispatch) => {
+    dispatch(loadCommentsRequest());
+    let info;
+    try {
+        info = await rtb.board.info.get();
+    }
+    catch (err) {
+        dispatch(loadCommentsFailure(err));
+        throw err;
+    }
+    dispatch(loadCommentsSuccess(info));
+};
+// Selectors
+const selectTitle = Object(reselect__WEBPACK_IMPORTED_MODULE_0__["createSelector"])(state => state[STORE_MOUNT_POINT], here => {
+    const title = here.info ? here.info.title : '';
+    const loading = here.loading ? 'Loading...' : '';
+    const err = here.err ? here.err.toString() : '';
+    return title + loading + err;
 });
 
 
