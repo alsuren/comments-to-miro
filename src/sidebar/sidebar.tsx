@@ -27,12 +27,11 @@ export function mapStateToProps(state) {
 	return {
 		title: selectTitle(state),
 	};
-  }
-  
-  export function mapDispatchToProps(dispatch) {
-	return {
-	  loadInfo: () => dispatch(loadInfo()),
-	};
-  }
+}
 
-export default connect(mapStateToProps, mapDispatchToProps)(Sidebar);
+export default connect(
+	mapStateToProps,
+	{
+		loadInfo,
+	}
+)(Sidebar);

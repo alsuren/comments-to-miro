@@ -20538,7 +20538,6 @@ module.exports = camelize;
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Sidebar", function() { return Sidebar; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "mapStateToProps", function() { return mapStateToProps; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "mapDispatchToProps", function() { return mapDispatchToProps; });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(7);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var react_redux__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(29);
@@ -20568,12 +20567,9 @@ function mapStateToProps(state) {
         title: Object(_ducks_board_info__WEBPACK_IMPORTED_MODULE_2__["selectTitle"])(state),
     };
 }
-function mapDispatchToProps(dispatch) {
-    return {
-        loadInfo: () => dispatch(Object(_ducks_board_info__WEBPACK_IMPORTED_MODULE_2__["loadInfo"])()),
-    };
-}
-/* harmony default export */ __webpack_exports__["default"] = (Object(react_redux__WEBPACK_IMPORTED_MODULE_1__["connect"])(mapStateToProps, mapDispatchToProps)(Sidebar));
+/* harmony default export */ __webpack_exports__["default"] = (Object(react_redux__WEBPACK_IMPORTED_MODULE_1__["connect"])(mapStateToProps, {
+    loadInfo: _ducks_board_info__WEBPACK_IMPORTED_MODULE_2__["loadInfo"],
+})(Sidebar));
 
 
 /***/ }),
