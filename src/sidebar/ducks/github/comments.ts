@@ -3,13 +3,9 @@ import parseLinkHeader from 'parse-link-header';
 
 export const STORE_MOUNT_POINT = 'github/comments';
 
-const defaultState = {
-    loading: false,
-    err: null,
-    comments: null,
-};
 
 // Action Types
+
 const GET_COMMENTS_REQUEST = 'github/comments/GET_COMMENTS_REQUEST';
 const GET_COMMENTS_FAILURE = 'github/comments/GET_COMMENTS_FAILURE';
 const GET_COMMENTS_PROGRESS = 'github/comments/GET_COMMENTS_PROGRESS';
@@ -35,7 +31,44 @@ type Action = (
     GetCommentsFailureAction |
     GetCommentsProgressAction |
     GetCommentsSuccessAction);
+
+// Action Creators
+
+export function loadCommentsRequest(issue): Action {
+    return {
+        type: GET_COMMENTS_REQUEST,
+        issue,
+    };
+}
+
+export function loadCommentsFailure(err: String): Action {
+    return {
+        type: GET_COMMENTS_FAILURE,
+        err,
+    };
+}
+
+export function loadCommentsProgress(comments): Action {
+    return {
+        type: GET_COMMENTS_PROGRESS,
+        comments,
+    };
+}
+
+export function loadCommentsSuccess(): Action {
+    return {
+        type: GET_COMMENTS_SUCCESS,
+    };
+}
+
 // Reducer
+
+const defaultState = {
+    loading: false,
+    err: null,
+    comments: null,
+};
+
 export function reducer(state = defaultState, action: Action) {
     switch (action.type) {
         case GET_COMMENTS_REQUEST: {
@@ -70,35 +103,6 @@ export function reducer(state = defaultState, action: Action) {
             return state;
         }
     }
-}
-
-// Action Creators
-
-export function loadCommentsRequest(issue): Action {
-    return {
-        type: GET_COMMENTS_REQUEST,
-        issue,
-    };
-}
-
-export function loadCommentsFailure(err: String): Action {
-    return {
-        type: GET_COMMENTS_FAILURE,
-        err,
-    };
-}
-
-export function loadCommentsProgress(comments): Action {
-    return {
-        type: GET_COMMENTS_PROGRESS,
-        comments,
-    };
-}
-
-export function loadCommentsSuccess(): Action {
-    return {
-        type: GET_COMMENTS_SUCCESS,
-    };
 }
 
 // Thunks

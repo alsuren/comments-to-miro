@@ -23339,41 +23339,19 @@ function verifySubselectors(mapStateToProps, mapDispatchToProps, mergeProps, dis
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "STORE_MOUNT_POINT", function() { return STORE_MOUNT_POINT; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "reducer", function() { return reducer; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "loadInfoRequest", function() { return loadInfoRequest; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "loadInfoFailure", function() { return loadInfoFailure; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "loadInfoSuccess", function() { return loadInfoSuccess; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "reducer", function() { return reducer; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "loadInfo", function() { return loadInfo; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectTitle", function() { return selectTitle; });
 /* harmony import */ var reselect__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(60);
 
 const STORE_MOUNT_POINT = 'board/info';
-const defaultState = {
-    loading: false,
-    err: null,
-    info: null,
-};
 // Action Types
 const GET_INFO_REQUEST = 'board/info/GET_INFO_REQUEST';
 const GET_INFO_FAILURE = 'board/info/GET_INFO_FAILURE';
 const GET_INFO_SUCCESS = 'board/info/GET_INFO_SUCCESS';
-// Reducer
-function reducer(state = defaultState, action) {
-    switch (action.type) {
-        case GET_INFO_REQUEST: {
-            return Object.assign({}, state, { loading: true, err: null });
-        }
-        case GET_INFO_FAILURE: {
-            return Object.assign({}, state, { loading: false, err: action.err });
-        }
-        case GET_INFO_SUCCESS: {
-            return Object.assign({}, state, { loading: false, info: action.info });
-        }
-        default: {
-            return state;
-        }
-    }
-}
 // Action Creators
 function loadInfoRequest() {
     return { type: GET_INFO_REQUEST };
@@ -23389,6 +23367,28 @@ function loadInfoSuccess(info) {
         type: GET_INFO_SUCCESS,
         info,
     };
+}
+// Reducer
+const defaultState = {
+    loading: false,
+    err: null,
+    info: null,
+};
+function reducer(state = defaultState, action) {
+    switch (action.type) {
+        case GET_INFO_REQUEST: {
+            return Object.assign({}, state, { loading: true, err: null });
+        }
+        case GET_INFO_FAILURE: {
+            return Object.assign({}, state, { loading: false, err: action.err });
+        }
+        case GET_INFO_SUCCESS: {
+            return Object.assign({}, state, { loading: false, info: action.info });
+        }
+        default: {
+            return state;
+        }
+    }
 }
 // Thunks
 const loadInfo = () => async (dispatch) => {
@@ -23550,11 +23550,11 @@ function createStructuredSelector(selectors) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "STORE_MOUNT_POINT", function() { return STORE_MOUNT_POINT; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "reducer", function() { return reducer; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "loadCommentsRequest", function() { return loadCommentsRequest; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "loadCommentsFailure", function() { return loadCommentsFailure; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "loadCommentsProgress", function() { return loadCommentsProgress; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "loadCommentsSuccess", function() { return loadCommentsSuccess; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "reducer", function() { return reducer; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "loadComments", function() { return loadComments; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectCommentCount", function() { return selectCommentCount; });
 /* harmony import */ var reselect__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(60);
@@ -23563,36 +23563,11 @@ __webpack_require__.r(__webpack_exports__);
 
 
 const STORE_MOUNT_POINT = 'github/comments';
-const defaultState = {
-    loading: false,
-    err: null,
-    comments: null,
-};
 // Action Types
 const GET_COMMENTS_REQUEST = 'github/comments/GET_COMMENTS_REQUEST';
 const GET_COMMENTS_FAILURE = 'github/comments/GET_COMMENTS_FAILURE';
 const GET_COMMENTS_PROGRESS = 'github/comments/GET_COMMENTS_PROGRESS';
 const GET_COMMENTS_SUCCESS = 'github/comments/GET_COMMENTS_SUCCESS';
-// Reducer
-function reducer(state = defaultState, action) {
-    switch (action.type) {
-        case GET_COMMENTS_REQUEST: {
-            return Object.assign({}, state, { comments: null, loading: action.issue, err: null });
-        }
-        case GET_COMMENTS_FAILURE: {
-            return Object.assign({}, state, { loading: false, err: action.err });
-        }
-        case GET_COMMENTS_PROGRESS: {
-            return Object.assign({}, state, { comments: [...(state.comments || []), ...action.comments] });
-        }
-        case GET_COMMENTS_SUCCESS: {
-            return Object.assign({}, state, { loading: false });
-        }
-        default: {
-            return state;
-        }
-    }
-}
 // Action Creators
 function loadCommentsRequest(issue) {
     return {
@@ -23616,6 +23591,31 @@ function loadCommentsSuccess() {
     return {
         type: GET_COMMENTS_SUCCESS,
     };
+}
+// Reducer
+const defaultState = {
+    loading: false,
+    err: null,
+    comments: null,
+};
+function reducer(state = defaultState, action) {
+    switch (action.type) {
+        case GET_COMMENTS_REQUEST: {
+            return Object.assign({}, state, { comments: null, loading: action.issue, err: null });
+        }
+        case GET_COMMENTS_FAILURE: {
+            return Object.assign({}, state, { loading: false, err: action.err });
+        }
+        case GET_COMMENTS_PROGRESS: {
+            return Object.assign({}, state, { comments: [...(state.comments || []), ...action.comments] });
+        }
+        case GET_COMMENTS_SUCCESS: {
+            return Object.assign({}, state, { loading: false });
+        }
+        default: {
+            return state;
+        }
+    }
 }
 // Thunks
 const loadComments = () => async (dispatch) => {

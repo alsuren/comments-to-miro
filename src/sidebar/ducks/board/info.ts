@@ -1,13 +1,6 @@
 import {createSelector} from 'reselect';
 
-
 export const STORE_MOUNT_POINT = 'board/info';
-
-const defaultState = {
-    loading: false,
-    err: null,
-    info: null,
-};
 
 // Action Types
 const GET_INFO_REQUEST = 'board/info/GET_INFO_REQUEST';
@@ -26,7 +19,35 @@ interface GetInfoSuccessAction {
     readonly info: {};
 }
 type Action = GetInfoRequestAction | GetInfoFailureAction | GetInfoSuccessAction;
+
+// Action Creators
+
+export function loadInfoRequest(): Action {
+    return { type: GET_INFO_REQUEST };
+}
+
+export function loadInfoFailure(err: String): Action {
+    return {
+        type: GET_INFO_FAILURE,
+        err,
+    };
+}
+
+export function loadInfoSuccess(info): Action {
+    return {
+        type: GET_INFO_SUCCESS,
+        info,
+    };
+}
+
 // Reducer
+
+const defaultState = {
+    loading: false,
+    err: null,
+    info: null,
+};
+
 export function reducer(state = defaultState, action: Action) {
     switch (action.type) {
         case GET_INFO_REQUEST: {
@@ -55,26 +76,6 @@ export function reducer(state = defaultState, action: Action) {
             return state;
         }
     }
-}
-
-// Action Creators
-
-export function loadInfoRequest(): Action {
-    return { type: GET_INFO_REQUEST };
-}
-
-export function loadInfoFailure(err: String): Action {
-    return {
-        type: GET_INFO_FAILURE,
-        err,
-    };
-}
-
-export function loadInfoSuccess(info): Action {
-    return {
-        type: GET_INFO_SUCCESS,
-        info,
-    };
 }
 
 // Thunks
