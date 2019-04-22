@@ -25660,7 +25660,7 @@ const createStickers = (stickers) => async (dispatch) => {
     let widgets;
     try {
         const translated = stickers.map(sticker => ({
-            type: 'sticky',
+            type: 'STICKER',
             text: sticker.text,
         }));
         widgets = await rtb.board.widgets.create(translated);

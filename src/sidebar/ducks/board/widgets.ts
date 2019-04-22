@@ -90,7 +90,7 @@ export const createStickers = (stickers) => async dispatch =>  {
     let widgets: SDK.IBaseWidget[];
     try {
         const translated = stickers.map(sticker => ({
-            type: 'sticky',
+            type: 'STICKER',
             text: sticker.text,
         }))
         widgets = await rtb.board.widgets.create(translated);
