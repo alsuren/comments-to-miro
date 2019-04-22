@@ -25592,15 +25592,23 @@ const rootReducer = Object(redux__WEBPACK_IMPORTED_MODULE_0__["combineReducers"]
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_syncCommentsToSticky", function() { return _syncCommentsToSticky; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "syncCommentsToSticky", function() { return syncCommentsToSticky; });
 /* harmony import */ var _ducks_board_widgets__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(79);
 /* harmony import */ var _ducks_github_comments__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(61);
 
 
-const syncCommentsToSticky = (count) => async (dispatch, getState) => {
+const _syncCommentsToSticky = (count) => async (dispatch, getState) => {
     const comments = Object(_ducks_github_comments__WEBPACK_IMPORTED_MODULE_1__["selectNextUnsyncedComments"])(getState(), { count });
     await dispatch(Object(_ducks_board_widgets__WEBPACK_IMPORTED_MODULE_0__["createStickers"])(comments));
     dispatch(Object(_ducks_github_comments__WEBPACK_IMPORTED_MODULE_1__["recordSyncedComments"])(comments.length));
+    return !!comments.length;
+};
+const syncCommentsToSticky = (count) => async (dispatch, getState) => {
+    let progress = true;
+    while (progress) {
+        progress = await dispatch(_syncCommentsToSticky(count));
+    }
 };
 
 
