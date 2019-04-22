@@ -25666,13 +25666,13 @@ function reducer(state = defaultState, action) {
     }
 }
 // Thunks
-const createStickers = (stickers) => async (dispatch) => {
-    dispatch(createStickersRequest(stickers));
+const createStickers = (comments) => async (dispatch) => {
+    dispatch(createStickersRequest(comments));
     let widgets;
     try {
-        const translated = stickers.map(sticker => ({
+        const translated = comments.map(comment => ({
             type: 'STICKER',
-            text: sticker.text,
+            text: comment.body,
         }));
         widgets = await rtb.board.widgets.create(translated);
     }

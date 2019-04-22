@@ -85,13 +85,13 @@ export function reducer(state = defaultState, action: Action) {
 
 // Thunks
 
-export const createStickers = (stickers) => async dispatch =>  {
-    dispatch(createStickersRequest(stickers));
+export const createStickers = (comments) => async dispatch =>  {
+    dispatch(createStickersRequest(comments));
     let widgets: SDK.IBaseWidget[];
     try {
-        const translated = stickers.map(sticker => ({
+        const translated = comments.map(comment => ({
             type: 'STICKER',
-            text: sticker.text,
+            text: comment.body,
         }))
         widgets = await rtb.board.widgets.create(translated);
     } catch (err) {
