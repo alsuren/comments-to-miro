@@ -25589,7 +25589,7 @@ const syncCommentToSticky = () => async (dispatch, getState) => {
         text: Object(_ducks_github_comments__WEBPACK_IMPORTED_MODULE_1__["selectNextUnsyncedComment"])(getState()).body
     };
     await dispatch(Object(_ducks_board_widgets__WEBPACK_IMPORTED_MODULE_0__["createStickers"])([next]));
-    dispatch(_ducks_github_comments__WEBPACK_IMPORTED_MODULE_1__["recordSyncedComment"]);
+    dispatch(Object(_ducks_github_comments__WEBPACK_IMPORTED_MODULE_1__["recordSyncedComment"])());
 };
 
 
@@ -25660,7 +25660,7 @@ const createStickers = (stickers) => async (dispatch) => {
     let widgets;
     try {
         const translated = stickers.map(sticker => ({
-            type: 'shape',
+            type: 'STICKY',
             text: sticker.text,
         }));
         widgets = await rtb.board.widgets.create(translated);

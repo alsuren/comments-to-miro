@@ -6,5 +6,5 @@ export const syncCommentToSticky = () => async (dispatch, getState) =>  {
         text: selectNextUnsyncedComment(getState()).body
     }
     await dispatch(createStickers([next]));
-    dispatch(recordSyncedComment)
+    dispatch(recordSyncedComment())
 }
