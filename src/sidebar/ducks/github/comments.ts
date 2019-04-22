@@ -10,6 +10,7 @@ const GET_COMMENTS_REQUEST = 'github/comments/GET_COMMENTS_REQUEST';
 const GET_COMMENTS_FAILURE = 'github/comments/GET_COMMENTS_FAILURE';
 const GET_COMMENTS_PROGRESS = 'github/comments/GET_COMMENTS_PROGRESS';
 const GET_COMMENTS_SUCCESS = 'github/comments/GET_COMMENTS_SUCCESS';
+const RECORD_SYNCED_COMMENT = 'github/comments/RECORD_SYNCED_COMMENT';
 
 interface GetCommentsRequestAction {
     readonly type: typeof GET_COMMENTS_REQUEST;
@@ -26,11 +27,15 @@ interface GetCommentsProgressAction {
 interface GetCommentsSuccessAction {
     readonly type: typeof GET_COMMENTS_SUCCESS;
 }
+interface RecordSyncedComment {
+    readonly type: typeof RECORD_SYNCED_COMMENT;
+}
 type Action = (
     GetCommentsRequestAction |
     GetCommentsFailureAction |
     GetCommentsProgressAction |
-    GetCommentsSuccessAction);
+    GetCommentsSuccessAction |
+    RecordSyncedComment);
 
 // Action Creators
 
@@ -61,12 +66,20 @@ export function loadCommentsSuccess(): Action {
     };
 }
 
+// TODO: actually care about which comment you just synced.
+export function recordSyncedComment(): Action {
+    return {
+        type: RECORD_SYNCED_COMMENT,
+    };
+}
+
 // Reducer
 
 const defaultState = {
     loading: false,
     err: null,
     comments: null,
+    nextUnsyncedCommentIndex: 0,
 };
 
 export function reducer(state = defaultState, action: Action) {
@@ -75,6 +88,7 @@ export function reducer(state = defaultState, action: Action) {
             return {
                 ...state,
                 comments: null,
+                nextUnsyncedCommentIndex: 0,
                 loading: action.issue,
                 err: null,
             };
@@ -96,6 +110,12 @@ export function reducer(state = defaultState, action: Action) {
             return {
                 ...state,
                 loading: false,
+            };
+        }
+        case RECORD_SYNCED_COMMENT: {
+            return {
+                ...state,
+                nextUnsyncedCommentIndex: state.nextUnsyncedCommentIndex + 1,
             };
         }
 
@@ -140,4 +160,16 @@ export const selectCommentCount = createSelector(
         const err = here.err ? here.err.toString() : '';
         return comments + loading + err;
     }
+)
+
+export const selectUnsyncedCommentCount = createSelector(
+    state => state[STORE_MOUNT_POINT],
+    here => here.comments
+        ? here.comments.length - here.nextUnsyncedCommentIndex
+        : ''
+)
+
+export const selectNextUnsyncedComment = createSelector(
+    state => state[STORE_MOUNT_POINT],
+    here => here.comments[here.nextUnsyncedCommentIndex]
 )

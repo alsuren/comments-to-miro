@@ -20547,13 +20547,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var react_redux__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(29);
 /* harmony import */ var _ducks_board_info__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(59);
-/* harmony import */ var _ducks_github_comments__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(61);
+/* harmony import */ var _ducks_board_widgets__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(79);
+/* harmony import */ var _ducks_github_comments__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(61);
+/* harmony import */ var _thunks_commentsToStickies__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(78);
 __webpack_require__(2);
 
 
 
 
-const Sidebar = ({ title, loadInfo, commentCount, loadComments }) => {
+
+
+const Sidebar = ({ title, loadInfo, commentCount, unsyncedCommentCount, loadComments, syncCommentToSticky, progress, }) => {
     return (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { className: "container" },
         react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("button", { onClick: loadInfo }, "Get board title"),
         react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("br", null),
@@ -20567,17 +20571,28 @@ const Sidebar = ({ title, loadInfo, commentCount, loadComments }) => {
         react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", null,
             "Number of comments: ",
             commentCount),
-        "\t\t"));
+        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("br", null),
+        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("button", { onClick: syncCommentToSticky }, "Sync Comment to Sticky"),
+        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("br", null),
+        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", null,
+            "Number of comments remaining: ",
+            unsyncedCommentCount,
+            " (",
+            progress,
+            ")")));
 };
 function mapStateToProps(state) {
     return {
         title: Object(_ducks_board_info__WEBPACK_IMPORTED_MODULE_2__["selectTitle"])(state),
-        commentCount: Object(_ducks_github_comments__WEBPACK_IMPORTED_MODULE_3__["selectCommentCount"])(state),
+        commentCount: Object(_ducks_github_comments__WEBPACK_IMPORTED_MODULE_4__["selectCommentCount"])(state),
+        unsyncedCommentCount: Object(_ducks_github_comments__WEBPACK_IMPORTED_MODULE_4__["selectUnsyncedCommentCount"])(state),
+        progress: Object(_ducks_board_widgets__WEBPACK_IMPORTED_MODULE_3__["selectProgress"])(state),
     };
 }
 /* harmony default export */ __webpack_exports__["default"] = (Object(react_redux__WEBPACK_IMPORTED_MODULE_1__["connect"])(mapStateToProps, {
     loadInfo: _ducks_board_info__WEBPACK_IMPORTED_MODULE_2__["loadInfo"],
-    loadComments: _ducks_github_comments__WEBPACK_IMPORTED_MODULE_3__["loadComments"],
+    loadComments: _ducks_github_comments__WEBPACK_IMPORTED_MODULE_4__["loadComments"],
+    syncCommentToSticky: _thunks_commentsToStickies__WEBPACK_IMPORTED_MODULE_5__["syncCommentToSticky"],
 })(Sidebar));
 
 
@@ -23554,9 +23569,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "loadCommentsFailure", function() { return loadCommentsFailure; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "loadCommentsProgress", function() { return loadCommentsProgress; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "loadCommentsSuccess", function() { return loadCommentsSuccess; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "recordSyncedComment", function() { return recordSyncedComment; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "reducer", function() { return reducer; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "loadComments", function() { return loadComments; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectCommentCount", function() { return selectCommentCount; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectUnsyncedCommentCount", function() { return selectUnsyncedCommentCount; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectNextUnsyncedComment", function() { return selectNextUnsyncedComment; });
 /* harmony import */ var reselect__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(60);
 /* harmony import */ var parse_link_header__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(62);
 /* harmony import */ var parse_link_header__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(parse_link_header__WEBPACK_IMPORTED_MODULE_1__);
@@ -23568,6 +23586,7 @@ const GET_COMMENTS_REQUEST = 'github/comments/GET_COMMENTS_REQUEST';
 const GET_COMMENTS_FAILURE = 'github/comments/GET_COMMENTS_FAILURE';
 const GET_COMMENTS_PROGRESS = 'github/comments/GET_COMMENTS_PROGRESS';
 const GET_COMMENTS_SUCCESS = 'github/comments/GET_COMMENTS_SUCCESS';
+const RECORD_SYNCED_COMMENT = 'github/comments/RECORD_SYNCED_COMMENT';
 // Action Creators
 function loadCommentsRequest(issue) {
     return {
@@ -23592,16 +23611,23 @@ function loadCommentsSuccess() {
         type: GET_COMMENTS_SUCCESS,
     };
 }
+// TODO: actually care about which comment you just synced.
+function recordSyncedComment() {
+    return {
+        type: RECORD_SYNCED_COMMENT,
+    };
+}
 // Reducer
 const defaultState = {
     loading: false,
     err: null,
     comments: null,
+    nextUnsyncedCommentIndex: 0,
 };
 function reducer(state = defaultState, action) {
     switch (action.type) {
         case GET_COMMENTS_REQUEST: {
-            return Object.assign({}, state, { comments: null, loading: action.issue, err: null });
+            return Object.assign({}, state, { comments: null, nextUnsyncedCommentIndex: 0, loading: action.issue, err: null });
         }
         case GET_COMMENTS_FAILURE: {
             return Object.assign({}, state, { loading: false, err: action.err });
@@ -23611,6 +23637,9 @@ function reducer(state = defaultState, action) {
         }
         case GET_COMMENTS_SUCCESS: {
             return Object.assign({}, state, { loading: false });
+        }
+        case RECORD_SYNCED_COMMENT: {
+            return Object.assign({}, state, { nextUnsyncedCommentIndex: state.nextUnsyncedCommentIndex + 1 });
         }
         default: {
             return state;
@@ -23648,6 +23677,10 @@ const selectCommentCount = Object(reselect__WEBPACK_IMPORTED_MODULE_0__["createS
     const err = here.err ? here.err.toString() : '';
     return comments + loading + err;
 });
+const selectUnsyncedCommentCount = Object(reselect__WEBPACK_IMPORTED_MODULE_0__["createSelector"])(state => state[STORE_MOUNT_POINT], here => here.comments
+    ? here.comments.length - here.nextUnsyncedCommentIndex
+    : '');
+const selectNextUnsyncedComment = Object(reselect__WEBPACK_IMPORTED_MODULE_0__["createSelector"])(state => state[STORE_MOUNT_POINT], here => here.comments[here.nextUnsyncedCommentIndex]);
 
 
 /***/ }),
@@ -25526,14 +25559,128 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "rootReducer", function() { return rootReducer; });
 /* harmony import */ var redux__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(46);
 /* harmony import */ var _board_info__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(59);
-/* harmony import */ var _github_comments__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(61);
+/* harmony import */ var _board_widgets__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(79);
+/* harmony import */ var _github_comments__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(61);
 // taken from https://medium.com/@DjamelH/ducks-redux-reducer-bundles-44267f080d22
+
 
 
 
 const rootReducer = Object(redux__WEBPACK_IMPORTED_MODULE_0__["combineReducers"])({
     [_board_info__WEBPACK_IMPORTED_MODULE_1__["STORE_MOUNT_POINT"]]: _board_info__WEBPACK_IMPORTED_MODULE_1__["reducer"],
-    [_github_comments__WEBPACK_IMPORTED_MODULE_2__["STORE_MOUNT_POINT"]]: _github_comments__WEBPACK_IMPORTED_MODULE_2__["reducer"],
+    [_board_widgets__WEBPACK_IMPORTED_MODULE_2__["STORE_MOUNT_POINT"]]: _board_widgets__WEBPACK_IMPORTED_MODULE_2__["reducer"],
+    [_github_comments__WEBPACK_IMPORTED_MODULE_3__["STORE_MOUNT_POINT"]]: _github_comments__WEBPACK_IMPORTED_MODULE_3__["reducer"],
+});
+
+
+/***/ }),
+/* 78 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "syncCommentToSticky", function() { return syncCommentToSticky; });
+/* harmony import */ var _ducks_board_widgets__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(79);
+/* harmony import */ var _ducks_github_comments__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(61);
+
+
+const syncCommentToSticky = () => async (dispatch, getState) => {
+    const next = {
+        text: Object(_ducks_github_comments__WEBPACK_IMPORTED_MODULE_1__["selectNextUnsyncedComment"])(getState()).body
+    };
+    await dispatch(Object(_ducks_board_widgets__WEBPACK_IMPORTED_MODULE_0__["createStickers"])([next]));
+    dispatch(_ducks_github_comments__WEBPACK_IMPORTED_MODULE_1__["recordSyncedComment"]);
+};
+
+
+/***/ }),
+/* 79 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "STORE_MOUNT_POINT", function() { return STORE_MOUNT_POINT; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createStickersRequest", function() { return createStickersRequest; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createStickersFailure", function() { return createStickersFailure; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createStickersSuccess", function() { return createStickersSuccess; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "reducer", function() { return reducer; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createStickers", function() { return createStickers; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectProgress", function() { return selectProgress; });
+/* harmony import */ var reselect__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(60);
+
+const STORE_MOUNT_POINT = 'board/widgets';
+// Action Types
+const CREATE_STICKERS_REQUEST = 'board/widgets/CREATE_STICKERS_REQUEST';
+const CREATE_STICKERS_FAILURE = 'board/widgets/CREATE_STICKERS_FAILURE';
+const CREATE_STICKERS_SUCCESS = 'board/widgets/CREATE_STICKERS_SUCCESS';
+// Action Creators
+function createStickersRequest(stickersToCreate) {
+    return {
+        type: CREATE_STICKERS_REQUEST,
+        stickersToCreate,
+    };
+}
+function createStickersFailure(err) {
+    return {
+        type: CREATE_STICKERS_FAILURE,
+        err,
+    };
+}
+function createStickersSuccess(widgets) {
+    return {
+        type: CREATE_STICKERS_SUCCESS,
+        widgets,
+    };
+}
+// Reducer
+const defaultState = {
+    loading: false,
+    err: null,
+    info: null,
+};
+function reducer(state = defaultState, action) {
+    switch (action.type) {
+        case CREATE_STICKERS_REQUEST: {
+            return Object.assign({}, state, { stickersToCreate: action.stickersToCreate, err: null });
+        }
+        case CREATE_STICKERS_FAILURE: {
+            return Object.assign({}, state, { stickersToCreate: null, err: action.err });
+        }
+        case CREATE_STICKERS_SUCCESS: {
+            return Object.assign({}, state, { stickersToCreate: null, widgets: action.widgets });
+        }
+        default: {
+            return state;
+        }
+    }
+}
+// Thunks
+const createStickers = (stickers) => async (dispatch) => {
+    dispatch(createStickersRequest(stickers));
+    let widgets;
+    try {
+        const translated = stickers.map(sticker => ({
+            type: 'shape',
+            text: sticker.text,
+        }));
+        widgets = await rtb.board.widgets.create(translated);
+    }
+    catch (err) {
+        dispatch(createStickersFailure(err.toString()));
+        throw err;
+    }
+    dispatch(createStickersSuccess(widgets));
+};
+// Selectors
+const selectProgress = Object(reselect__WEBPACK_IMPORTED_MODULE_0__["createSelector"])(state => state[STORE_MOUNT_POINT], here => {
+    const added = here.widgets
+        ? `Added ${here.widgets.length} stickers.`
+        : '';
+    const loading = here.stickersToCreate
+        ? `Adding ${here.stickersToCreate.length} stickers...`
+        : '';
+    const err = here.err ? here.err : '';
+    return added + loading + err;
 });
 
 
