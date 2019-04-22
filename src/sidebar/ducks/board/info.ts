@@ -63,7 +63,7 @@ export function loadInfoRequest(): Action {
     return { type: GET_INFO_REQUEST };
 }
 
-export function loadInfoFailure(err): Action {
+export function loadInfoFailure(err: String): Action {
     return {
         type: GET_INFO_FAILURE,
         err,
@@ -85,7 +85,7 @@ export const loadInfo = () => async dispatch =>  {
     try {
         info = await rtb.board.info.get();
     } catch (err) {
-        dispatch(loadInfoFailure(err));
+        dispatch(loadInfoFailure(err.toString()));
         throw err;
     }
     dispatch(loadInfoSuccess(info));
@@ -98,7 +98,7 @@ export const selectTitle = createSelector(
     here => {
         const title = here.info ? here.info.title : '';
         const loading = here.loading ? 'Loading...' : '';
-        const err = here.err ? here.err.toString() : '';
+        const err = here.err ? here.err : '';
         return title + loading + err;
     }
 )

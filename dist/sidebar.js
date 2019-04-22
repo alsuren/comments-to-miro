@@ -114,7 +114,9 @@ __webpack_require__(2);
 // @ts-ignore
 const composeEnhancers = (window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
     // @ts-ignore
-    ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({ name: "Import Comments" })
+    ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({
+        name: "Import Comments",
+    })
     : redux__WEBPACK_IMPORTED_MODULE_6__["compose"]);
 const store = Object(redux__WEBPACK_IMPORTED_MODULE_6__["createStore"])(_ducks_index__WEBPACK_IMPORTED_MODULE_7__["rootReducer"], composeEnhancers(Object(redux__WEBPACK_IMPORTED_MODULE_6__["applyMiddleware"])(redux_thunk__WEBPACK_IMPORTED_MODULE_4__["default"]), redux_localstorage__WEBPACK_IMPORTED_MODULE_5___default()()));
 let el = document.getElementById('react-app');
@@ -23396,7 +23398,7 @@ const loadInfo = () => async (dispatch) => {
         info = await rtb.board.info.get();
     }
     catch (err) {
-        dispatch(loadInfoFailure(err));
+        dispatch(loadInfoFailure(err.toString()));
         throw err;
     }
     dispatch(loadInfoSuccess(info));
@@ -23405,7 +23407,7 @@ const loadInfo = () => async (dispatch) => {
 const selectTitle = Object(reselect__WEBPACK_IMPORTED_MODULE_0__["createSelector"])(state => state[STORE_MOUNT_POINT], here => {
     const title = here.info ? here.info.title : '';
     const loading = here.loading ? 'Loading...' : '';
-    const err = here.err ? here.err.toString() : '';
+    const err = here.err ? here.err : '';
     return title + loading + err;
 });
 
@@ -23634,7 +23636,7 @@ const loadComments = () => async (dispatch) => {
         }
     }
     catch (err) {
-        dispatch(loadCommentsFailure(err));
+        dispatch(loadCommentsFailure(err.toString()));
         throw err;
     }
     dispatch(loadCommentsSuccess());

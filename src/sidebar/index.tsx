@@ -12,7 +12,9 @@ import { rootReducer } from './ducks/index';
 // @ts-ignore
 const composeEnhancers = (window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
 	// @ts-ignore
-	? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({name: "Import Comments"})
+	? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({
+		name: "Import Comments",
+	})
 	: compose);
 
 const store = createStore(

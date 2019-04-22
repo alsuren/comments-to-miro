@@ -81,7 +81,7 @@ export function loadCommentsRequest(issue): Action {
     };
 }
 
-export function loadCommentsFailure(err): Action {
+export function loadCommentsFailure(err: String): Action {
     return {
         type: GET_COMMENTS_FAILURE,
         err,
@@ -120,7 +120,7 @@ export const loadComments = () => async dispatch =>  {
             nextUrl = parsed && parsed.next ? parsed.next.url : null;
         }
     } catch (err) {
-        dispatch(loadCommentsFailure(err));
+        dispatch(loadCommentsFailure(err.toString()));
         throw err;
     }
     dispatch(loadCommentsSuccess());
