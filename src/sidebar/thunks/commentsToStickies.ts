@@ -1,10 +1,8 @@
 import {createStickers} from "../ducks/board/widgets"
-import {selectNextUnsyncedComment, recordSyncedComment} from "../ducks/github/comments"
+import {selectNextUnsyncedComments, recordSyncedComments} from "../ducks/github/comments"
 
-export const syncCommentToSticky = () => async (dispatch, getState) =>  {
-    const next = {
-        text: selectNextUnsyncedComment(getState()).body
-    }
-    await dispatch(createStickers([next]));
-    dispatch(recordSyncedComment())
+export const syncCommentsToSticky = (count) => async (dispatch, getState) =>  {
+    const comments = selectNextUnsyncedComments(getState(), {count})
+    await dispatch(createStickers(comments));
+    dispatch(recordSyncedComments(comments.length))
 }

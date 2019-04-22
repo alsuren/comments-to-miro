@@ -3,12 +3,12 @@ import * as React from 'react'
 import { connect } from 'react-redux';
 import { loadInfo, selectTitle } from './ducks/board/info';
 import { selectProgress } from './ducks/board/widgets';
-import { loadComments, selectCommentCount, selectUnsyncedCommentCount } from './ducks/github/comments';
-import { syncCommentToSticky } from './thunks/commentsToStickies';
+import { loadComments, selectCommentCount, selectUnsyncedCommentCount, resetSyncedComments } from './ducks/github/comments';
+import { syncCommentsToSticky } from './thunks/commentsToStickies';
 
 export const Sidebar = ({
-	title, loadInfo, commentCount, unsyncedCommentCount, loadComments, syncCommentToSticky,
-	progress,
+	title, loadInfo, commentCount, unsyncedCommentCount, loadComments, syncCommentsToSticky,
+	progress, resetSyncedComments,
 }) => {
 	return (
 		<div className="container">
@@ -21,7 +21,8 @@ export const Sidebar = ({
 			<br />
 			<div>Number of comments: {commentCount}</div>
 			<br />
-			<button onClick={syncCommentToSticky}>Sync Comment to Sticky</button>
+			<button onClick={() => syncCommentsToSticky(10)}>Sync Comment to Sticky</button>
+			<button onClick={resetSyncedComments}>Start again</button>
 			<br />
 			<div>Number of comments remaining: {unsyncedCommentCount} ({progress})</div>
 		</div>
@@ -42,6 +43,7 @@ export default connect(
 	{
 		loadInfo,
 		loadComments,
-		syncCommentToSticky,
+		syncCommentsToSticky,
+		resetSyncedComments,
 	}
 )(Sidebar);

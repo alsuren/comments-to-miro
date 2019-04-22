@@ -20557,7 +20557,7 @@ __webpack_require__(2);
 
 
 
-const Sidebar = ({ title, loadInfo, commentCount, unsyncedCommentCount, loadComments, syncCommentToSticky, progress, }) => {
+const Sidebar = ({ title, loadInfo, commentCount, unsyncedCommentCount, loadComments, syncCommentsToSticky, progress, resetSyncedComments, }) => {
     return (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { className: "container" },
         react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("button", { onClick: loadInfo }, "Get board title"),
         react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("br", null),
@@ -20572,7 +20572,8 @@ const Sidebar = ({ title, loadInfo, commentCount, unsyncedCommentCount, loadComm
             "Number of comments: ",
             commentCount),
         react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("br", null),
-        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("button", { onClick: syncCommentToSticky }, "Sync Comment to Sticky"),
+        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("button", { onClick: () => syncCommentsToSticky(10) }, "Sync Comment to Sticky"),
+        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("button", { onClick: resetSyncedComments }, "Start again"),
         react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("br", null),
         react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", null,
             "Number of comments remaining: ",
@@ -20592,7 +20593,8 @@ function mapStateToProps(state) {
 /* harmony default export */ __webpack_exports__["default"] = (Object(react_redux__WEBPACK_IMPORTED_MODULE_1__["connect"])(mapStateToProps, {
     loadInfo: _ducks_board_info__WEBPACK_IMPORTED_MODULE_2__["loadInfo"],
     loadComments: _ducks_github_comments__WEBPACK_IMPORTED_MODULE_4__["loadComments"],
-    syncCommentToSticky: _thunks_commentsToStickies__WEBPACK_IMPORTED_MODULE_5__["syncCommentToSticky"],
+    syncCommentsToSticky: _thunks_commentsToStickies__WEBPACK_IMPORTED_MODULE_5__["syncCommentsToSticky"],
+    resetSyncedComments: _ducks_github_comments__WEBPACK_IMPORTED_MODULE_4__["resetSyncedComments"],
 })(Sidebar));
 
 
@@ -23569,12 +23571,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "loadCommentsFailure", function() { return loadCommentsFailure; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "loadCommentsProgress", function() { return loadCommentsProgress; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "loadCommentsSuccess", function() { return loadCommentsSuccess; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "recordSyncedComment", function() { return recordSyncedComment; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "resetSyncedComments", function() { return resetSyncedComments; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "recordSyncedComments", function() { return recordSyncedComments; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "reducer", function() { return reducer; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "loadComments", function() { return loadComments; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectCommentCount", function() { return selectCommentCount; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectUnsyncedCommentCount", function() { return selectUnsyncedCommentCount; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectNextUnsyncedComment", function() { return selectNextUnsyncedComment; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectNextUnsyncedComments", function() { return selectNextUnsyncedComments; });
 /* harmony import */ var reselect__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(60);
 /* harmony import */ var parse_link_header__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(62);
 /* harmony import */ var parse_link_header__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(parse_link_header__WEBPACK_IMPORTED_MODULE_1__);
@@ -23586,7 +23589,8 @@ const GET_COMMENTS_REQUEST = 'github/comments/GET_COMMENTS_REQUEST';
 const GET_COMMENTS_FAILURE = 'github/comments/GET_COMMENTS_FAILURE';
 const GET_COMMENTS_PROGRESS = 'github/comments/GET_COMMENTS_PROGRESS';
 const GET_COMMENTS_SUCCESS = 'github/comments/GET_COMMENTS_SUCCESS';
-const RECORD_SYNCED_COMMENT = 'github/comments/RECORD_SYNCED_COMMENT';
+const RESET_SYNCED_COMMENTS = 'github/comments/RESET_SYNCED_COMMENTS';
+const RECORD_SYNCED_COMMENTS = 'github/comments/RECORD_SYNCED_COMMENTS';
 // Action Creators
 function loadCommentsRequest(issue) {
     return {
@@ -23611,10 +23615,16 @@ function loadCommentsSuccess() {
         type: GET_COMMENTS_SUCCESS,
     };
 }
-// TODO: actually care about which comment you just synced.
-function recordSyncedComment() {
+function resetSyncedComments() {
     return {
-        type: RECORD_SYNCED_COMMENT,
+        type: RESET_SYNCED_COMMENTS,
+    };
+}
+// TODO: actually care about which comment you just synced.
+function recordSyncedComments(count) {
+    return {
+        type: RECORD_SYNCED_COMMENTS,
+        count,
     };
 }
 // Reducer
@@ -23638,8 +23648,11 @@ function reducer(state = defaultState, action) {
         case GET_COMMENTS_SUCCESS: {
             return Object.assign({}, state, { loading: false });
         }
-        case RECORD_SYNCED_COMMENT: {
-            return Object.assign({}, state, { nextUnsyncedCommentIndex: state.nextUnsyncedCommentIndex + 1 });
+        case RESET_SYNCED_COMMENTS: {
+            return Object.assign({}, state, { nextUnsyncedCommentIndex: 0 });
+        }
+        case RECORD_SYNCED_COMMENTS: {
+            return Object.assign({}, state, { nextUnsyncedCommentIndex: state.nextUnsyncedCommentIndex + action.count });
         }
         default: {
             return state;
@@ -23680,7 +23693,7 @@ const selectCommentCount = Object(reselect__WEBPACK_IMPORTED_MODULE_0__["createS
 const selectUnsyncedCommentCount = Object(reselect__WEBPACK_IMPORTED_MODULE_0__["createSelector"])(state => state[STORE_MOUNT_POINT], here => here.comments
     ? here.comments.length - here.nextUnsyncedCommentIndex
     : '');
-const selectNextUnsyncedComment = Object(reselect__WEBPACK_IMPORTED_MODULE_0__["createSelector"])(state => state[STORE_MOUNT_POINT], here => here.comments[here.nextUnsyncedCommentIndex]);
+const selectNextUnsyncedComments = Object(reselect__WEBPACK_IMPORTED_MODULE_0__["createSelector"])((state) => state[STORE_MOUNT_POINT], (_, { count }) => count, (here, count) => here.comments.slice(here.nextUnsyncedCommentIndex, here.nextUnsyncedCommentIndex + count));
 
 
 /***/ }),
@@ -25579,17 +25592,15 @@ const rootReducer = Object(redux__WEBPACK_IMPORTED_MODULE_0__["combineReducers"]
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "syncCommentToSticky", function() { return syncCommentToSticky; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "syncCommentsToSticky", function() { return syncCommentsToSticky; });
 /* harmony import */ var _ducks_board_widgets__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(79);
 /* harmony import */ var _ducks_github_comments__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(61);
 
 
-const syncCommentToSticky = () => async (dispatch, getState) => {
-    const next = {
-        text: Object(_ducks_github_comments__WEBPACK_IMPORTED_MODULE_1__["selectNextUnsyncedComment"])(getState()).body
-    };
-    await dispatch(Object(_ducks_board_widgets__WEBPACK_IMPORTED_MODULE_0__["createStickers"])([next]));
-    dispatch(Object(_ducks_github_comments__WEBPACK_IMPORTED_MODULE_1__["recordSyncedComment"])());
+const syncCommentsToSticky = (count) => async (dispatch, getState) => {
+    const comments = Object(_ducks_github_comments__WEBPACK_IMPORTED_MODULE_1__["selectNextUnsyncedComments"])(getState(), { count });
+    await dispatch(Object(_ducks_board_widgets__WEBPACK_IMPORTED_MODULE_0__["createStickers"])(comments));
+    dispatch(Object(_ducks_github_comments__WEBPACK_IMPORTED_MODULE_1__["recordSyncedComments"])(comments.length));
 };
 
 

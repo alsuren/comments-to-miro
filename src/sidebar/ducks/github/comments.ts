@@ -10,7 +10,8 @@ const GET_COMMENTS_REQUEST = 'github/comments/GET_COMMENTS_REQUEST';
 const GET_COMMENTS_FAILURE = 'github/comments/GET_COMMENTS_FAILURE';
 const GET_COMMENTS_PROGRESS = 'github/comments/GET_COMMENTS_PROGRESS';
 const GET_COMMENTS_SUCCESS = 'github/comments/GET_COMMENTS_SUCCESS';
-const RECORD_SYNCED_COMMENT = 'github/comments/RECORD_SYNCED_COMMENT';
+const RESET_SYNCED_COMMENTS = 'github/comments/RESET_SYNCED_COMMENTS';
+const RECORD_SYNCED_COMMENTS = 'github/comments/RECORD_SYNCED_COMMENTS';
 
 interface GetCommentsRequestAction {
     readonly type: typeof GET_COMMENTS_REQUEST;
@@ -27,15 +28,20 @@ interface GetCommentsProgressAction {
 interface GetCommentsSuccessAction {
     readonly type: typeof GET_COMMENTS_SUCCESS;
 }
-interface RecordSyncedComment {
-    readonly type: typeof RECORD_SYNCED_COMMENT;
+interface ResetSyncedComments {
+    readonly type: typeof RESET_SYNCED_COMMENTS;
+}
+interface RecordSyncedComments {
+    readonly type: typeof RECORD_SYNCED_COMMENTS;
+    readonly count: number;
 }
 type Action = (
     GetCommentsRequestAction |
     GetCommentsFailureAction |
     GetCommentsProgressAction |
     GetCommentsSuccessAction |
-    RecordSyncedComment);
+    ResetSyncedComments |
+    RecordSyncedComments);
 
 // Action Creators
 
@@ -66,10 +72,16 @@ export function loadCommentsSuccess(): Action {
     };
 }
 
-// TODO: actually care about which comment you just synced.
-export function recordSyncedComment(): Action {
+export function resetSyncedComments(): Action {
     return {
-        type: RECORD_SYNCED_COMMENT,
+        type: RESET_SYNCED_COMMENTS,
+    };
+}
+// TODO: actually care about which comment you just synced.
+export function recordSyncedComments(count): Action {
+    return {
+        type: RECORD_SYNCED_COMMENTS,
+        count,
     };
 }
 
@@ -112,10 +124,17 @@ export function reducer(state = defaultState, action: Action) {
                 loading: false,
             };
         }
-        case RECORD_SYNCED_COMMENT: {
+        case RESET_SYNCED_COMMENTS: {
             return {
                 ...state,
-                nextUnsyncedCommentIndex: state.nextUnsyncedCommentIndex + 1,
+                nextUnsyncedCommentIndex: 0,
+            };
+        }
+        case RECORD_SYNCED_COMMENTS: {
+            return {
+                ...state,
+                nextUnsyncedCommentIndex:
+                    state.nextUnsyncedCommentIndex + action.count,
             };
         }
 
@@ -169,7 +188,10 @@ export const selectUnsyncedCommentCount = createSelector(
         : ''
 )
 
-export const selectNextUnsyncedComment = createSelector(
-    state => state[STORE_MOUNT_POINT],
-    here => here.comments[here.nextUnsyncedCommentIndex]
+export const selectNextUnsyncedComments = createSelector(
+    (state) => state[STORE_MOUNT_POINT],
+    (_, {count}) => count,
+    (here, count) => here.comments.slice(
+        here.nextUnsyncedCommentIndex,
+        here.nextUnsyncedCommentIndex + count)
 )
