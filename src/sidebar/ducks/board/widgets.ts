@@ -93,8 +93,8 @@ export const createStickers = (comments) => async dispatch =>  {
         const translated = comments.map(comment => ({
             type: 'STICKER',
             text: comment.body,
-            x: SCALE * (comment.reactions['-1']),
-            y: SCALE * (comment.reactions.total_count - comment.reactions['-1']),
+            x: SCALE * (comment.reactions['+1']),
+            y: SCALE * (comment.reactions.total_count - comment.reactions['+1']),
         }))
         widgets = await rtb.board.widgets.create(translated);
     } catch (err) {
