@@ -23673,7 +23673,7 @@ const FETCH_OPTIONS = {
 };
 const loadComments = () => async (dispatch) => {
     // TODO: allow users to put this into a form somewhere.
-    const issue = new URL('https://github.com/rust-lang/rfcs/pull/243');
+    const issue = new URL('https://github.com/rust-lang/rust/pull/59119');
     const [, owner, repo, , issue_number] = issue.pathname.split('/');
     let nextUrl = `https://api.github.com/repos/${owner}/${repo}/issues/${issue_number}/comments`;
     dispatch(loadCommentsRequest(issue));
