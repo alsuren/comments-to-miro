@@ -20557,7 +20557,7 @@ __webpack_require__(2);
 
 
 
-const Sidebar = ({ title, loadInfo, commentCount, unsyncedCommentCount, loadComments, syncCommentsToSticky, progress, resetSyncedComments, }) => {
+const Sidebar = ({ title, loadInfo, commentCount, unsyncedCommentCount, loadComments, syncCommentsToSticky, progress, resetSyncedComments, reactionCount, }) => {
     return (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { className: "container" },
         react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("button", { onClick: loadInfo }, "Get board title"),
         react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("br", null),
@@ -20571,6 +20571,10 @@ const Sidebar = ({ title, loadInfo, commentCount, unsyncedCommentCount, loadComm
         react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", null,
             "Number of comments: ",
             commentCount),
+        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("br", null),
+        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", null,
+            "Number of reactions: ",
+            reactionCount),
         react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("br", null),
         react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("button", { onClick: () => syncCommentsToSticky(10) }, "Sync Comment to Sticky"),
         react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("button", { onClick: resetSyncedComments }, "Start again"),
@@ -20586,6 +20590,7 @@ function mapStateToProps(state) {
     return {
         title: Object(_ducks_board_info__WEBPACK_IMPORTED_MODULE_2__["selectTitle"])(state),
         commentCount: Object(_ducks_github_comments__WEBPACK_IMPORTED_MODULE_4__["selectCommentCount"])(state),
+        reactionCount: Object(_ducks_github_comments__WEBPACK_IMPORTED_MODULE_4__["selectReactionCount"])(state),
         unsyncedCommentCount: Object(_ducks_github_comments__WEBPACK_IMPORTED_MODULE_4__["selectUnsyncedCommentCount"])(state),
         progress: Object(_ducks_board_widgets__WEBPACK_IMPORTED_MODULE_3__["selectProgress"])(state),
     };
@@ -23576,6 +23581,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "reducer", function() { return reducer; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "loadComments", function() { return loadComments; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectCommentCount", function() { return selectCommentCount; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectReactionCount", function() { return selectReactionCount; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectUnsyncedCommentCount", function() { return selectUnsyncedCommentCount; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectNextUnsyncedComments", function() { return selectNextUnsyncedComments; });
 /* harmony import */ var reselect__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(60);
@@ -23660,6 +23666,11 @@ function reducer(state = defaultState, action) {
     }
 }
 // Thunks
+const FETCH_OPTIONS = {
+    headers: {
+        Accept: 'application/vnd.github.squirrel-girl-preview'
+    }
+};
 const loadComments = () => async (dispatch) => {
     // TODO: allow users to put this into a form somewhere.
     const issue = new URL('https://github.com/rust-lang/rfcs/pull/243');
@@ -23669,7 +23680,7 @@ const loadComments = () => async (dispatch) => {
     let comments;
     try {
         while (nextUrl) {
-            const response = await fetch(nextUrl);
+            const response = await fetch(nextUrl, FETCH_OPTIONS);
             comments = await response.json();
             dispatch(loadCommentsProgress(comments));
             const linkHeader = response.headers.get('Link');
@@ -23689,6 +23700,13 @@ const selectCommentCount = Object(reselect__WEBPACK_IMPORTED_MODULE_0__["createS
     const loading = here.loading ? ' Loading ' + here.loading : '';
     const err = here.err ? here.err.toString() : '';
     return comments + loading + err;
+});
+const selectReactionCount = Object(reselect__WEBPACK_IMPORTED_MODULE_0__["createSelector"])(state => state[STORE_MOUNT_POINT], here => {
+    if (!here.comments) {
+        return 0;
+    }
+    ;
+    return here.comments.map(c => (c.reactions || {}).total_count).reduce((a, b) => a + b, 0);
 });
 const selectUnsyncedCommentCount = Object(reselect__WEBPACK_IMPORTED_MODULE_0__["createSelector"])(state => state[STORE_MOUNT_POINT], here => here.comments
     ? here.comments.length - here.nextUnsyncedCommentIndex

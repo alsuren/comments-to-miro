@@ -145,6 +145,11 @@ export function reducer(state = defaultState, action: Action) {
 }
 
 // Thunks
+const FETCH_OPTIONS = {
+    headers: {
+        Accept: 'application/vnd.github.squirrel-girl-preview'
+    }
+}
 
 export const loadComments = () => async dispatch =>  {
     // TODO: allow users to put this into a form somewhere.
@@ -155,7 +160,7 @@ export const loadComments = () => async dispatch =>  {
     let comments;
     try {
         while (nextUrl) {
-            const response = await fetch(nextUrl);
+            const response = await fetch(nextUrl, FETCH_OPTIONS);
             comments = await response.json();
             dispatch(loadCommentsProgress(comments));
             const linkHeader = response.headers.get('Link');
@@ -178,6 +183,23 @@ export const selectCommentCount = createSelector(
         const loading = here.loading ? ' Loading ' + here.loading : '';
         const err = here.err ? here.err.toString() : '';
         return comments + loading + err;
+    }
+)
+
+
+export const selectReactionCount = createSelector(
+    state => state[STORE_MOUNT_POINT],
+    here => {
+        if (!here.comments){
+            return 0;
+        };
+
+        return here.comments.map(
+            c => (c.reactions || {}).total_count,
+        ).reduce(
+            (a, b) => a + b,
+            0,
+        )
     }
 )
 
