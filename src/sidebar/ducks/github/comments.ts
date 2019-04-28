@@ -144,8 +144,9 @@ export function reducer(state: StoreState = defaultState, action: Action): Store
                     ...keyBy(action.comments, 'id'),
                 },
                 unsyncedCommentIds: [
-                    ...state.unsyncedCommentIds],
+                    ...state.unsyncedCommentIds,
                     ...action.comments.map(c => c.id)
+                ],
             };
         }
         case GET_COMMENTS_SUCCESS: {
