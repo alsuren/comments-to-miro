@@ -1,5 +1,4 @@
 import keyBy from 'lodash/keyBy';
-import pick from 'lodash/pick';
 
 import {createSelector} from 'reselect';
 import parseLinkHeader from 'parse-link-header';
@@ -243,6 +242,6 @@ export const selectNextUnsyncedComments = createSelector(
         const ids = here.unsyncedCommentIds.slice(
             here.nextUnsyncedCommentIndex,
             here.nextUnsyncedCommentIndex + count);
-        return pick(here.commentsById, ids);
+        return ids.map(id => here.commentsById[id]);
     }
 )
