@@ -23714,7 +23714,7 @@ const selectNextUnsyncedComments = Object(reselect__WEBPACK_IMPORTED_MODULE_1__[
     (state) => state[STORE_MOUNT_POINT],
     (_, { count }) => count,
 ], (here, count) => {
-    const ids = here.unsyncedCommentIds.slice(here.nextUnsyncedCommentIndex, here.nextUnsyncedCommentIndex + count);
+    const ids = here.unsyncedCommentIds.slice(0, count);
     return ids.map(id => here.commentsById[id]);
 });
 
