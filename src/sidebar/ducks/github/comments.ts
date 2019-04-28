@@ -1,6 +1,8 @@
+import keyBy from 'lodash/keyBy';
+import pick from 'lodash/pick';
+
 import {createSelector} from 'reselect';
 import parseLinkHeader from 'parse-link-header';
-
 export const STORE_MOUNT_POINT = 'github/comments';
 
 
@@ -15,15 +17,15 @@ const RECORD_SYNCED_COMMENTS = 'github/comments/RECORD_SYNCED_COMMENTS';
 
 interface GetCommentsRequestAction {
     readonly type: typeof GET_COMMENTS_REQUEST;
-    readonly issue: String;
+    readonly issue: string;
 }
 interface GetCommentsFailureAction {
     readonly type: typeof GET_COMMENTS_FAILURE;
-    readonly err: {};
+    readonly err: string;
 }
 interface GetCommentsProgressAction {
     readonly type: typeof GET_COMMENTS_PROGRESS;
-    readonly comments: Array<{}>;
+    readonly comments: Array<GithubComment>;
 }
 interface GetCommentsSuccessAction {
     readonly type: typeof GET_COMMENTS_SUCCESS;
@@ -52,7 +54,7 @@ export function loadCommentsRequest(issue): Action {
     };
 }
 
-export function loadCommentsFailure(err: String): Action {
+export function loadCommentsFailure(err: string): Action {
     return {
         type: GET_COMMENTS_FAILURE,
         err,
@@ -85,56 +87,84 @@ export function recordSyncedComments(count): Action {
     };
 }
 
-// Reducer
+interface GithubComment {
+    id: number;
 
-const defaultState = {
-    loading: false,
-    err: null,
-    comments: null,
-    nextUnsyncedCommentIndex: 0,
+    reactions: {
+        "total_count": number,
+        "+1": number,
+        "-1": number,
+        "laugh": number,
+        "confused": number,
+        "heart": number,
+        "hooray": number,
+        "url": string,
+    }
+}
+
+// Reducer
+interface StoreState {
+    loading: string,
+    err: string,
+    // TODO: get rid of this field.
+    commentsById: { [id: string]: GithubComment},
+    unsyncedCommentIds: Array<number>,
+}
+
+const defaultState : StoreState = {
+    loading: '',
+    err: '',
+    // TODO: get rid of this field.
+    commentsById: {},
+    unsyncedCommentIds: [],
 };
 
-export function reducer(state = defaultState, action: Action) {
+export function reducer(state: StoreState = defaultState, action: Action): StoreState {
     switch (action.type) {
         case GET_COMMENTS_REQUEST: {
             return {
                 ...state,
-                comments: null,
-                nextUnsyncedCommentIndex: 0,
+                commentsById: {},
+                unsyncedCommentIds: [],
                 loading: action.issue,
-                err: null,
+                err: '',
             };
         }
         case GET_COMMENTS_FAILURE: {
             return {
                 ...state,
-                loading: false,
+                loading: '',
                 err: action.err,
             };
         }
         case GET_COMMENTS_PROGRESS: {
             return {
                 ...state,
-                comments: [...(state.comments || []), ...action.comments],
+                commentsById: {
+                    ...state.commentsById,
+                    ...keyBy(action.comments, 'id'),
+                },
+                unsyncedCommentIds: [
+                    ...state.unsyncedCommentIds],
+                    ...action.comments.map(c => c.id)
             };
         }
         case GET_COMMENTS_SUCCESS: {
             return {
                 ...state,
-                loading: false,
+                loading: '',
             };
         }
         case RESET_SYNCED_COMMENTS: {
             return {
                 ...state,
-                nextUnsyncedCommentIndex: 0,
+                unsyncedCommentIds: [],
             };
         }
         case RECORD_SYNCED_COMMENTS: {
             return {
                 ...state,
-                nextUnsyncedCommentIndex:
-                    state.nextUnsyncedCommentIndex + action.count,
+                unsyncedCommentIds: state.unsyncedCommentIds.slice(action.count),
             };
         }
 
@@ -179,7 +209,7 @@ export const loadComments = () => async dispatch =>  {
 export const selectCommentCount = createSelector(
     state => state[STORE_MOUNT_POINT],
     here => {
-        const comments = here.comments ? here.comments.length : '';
+        const comments = Object.keys(here.commentsById).length || '';
         const loading = here.loading ? ' Loading ' + here.loading : '';
         const err = here.err ? here.err.toString() : '';
         return comments + loading + err;
@@ -189,13 +219,9 @@ export const selectCommentCount = createSelector(
 
 export const selectReactionCount = createSelector(
     state => state[STORE_MOUNT_POINT],
-    here => {
-        if (!here.comments){
-            return 0;
-        };
-
-        return here.comments.map(
-            c => (c.reactions || {}).total_count,
+    (here: StoreState) => {
+        return Object.values(here.commentsById).map(
+            (c: GithubComment) => (c.reactions || {}).total_count,
         ).reduce(
             (a, b) => a + b,
             0,
@@ -205,15 +231,18 @@ export const selectReactionCount = createSelector(
 
 export const selectUnsyncedCommentCount = createSelector(
     state => state[STORE_MOUNT_POINT],
-    here => here.comments
-        ? here.comments.length - here.nextUnsyncedCommentIndex
-        : ''
+    (here: StoreState) => here.unsyncedCommentIds.length
 )
 
 export const selectNextUnsyncedComments = createSelector(
-    (state) => state[STORE_MOUNT_POINT],
-    (_, {count}) => count,
-    (here, count) => here.comments.slice(
-        here.nextUnsyncedCommentIndex,
-        here.nextUnsyncedCommentIndex + count)
+    [
+        (state) => state[STORE_MOUNT_POINT],
+        (_, {count}) => count,
+    ],
+    (here, count) => {
+        const ids = here.unsyncedCommentIds.slice(
+            here.nextUnsyncedCommentIndex,
+            here.nextUnsyncedCommentIndex + count);
+        return pick(here.commentsById, ids);
+    }
 )
