@@ -20557,7 +20557,7 @@ __webpack_require__(2);
 
 
 
-const Sidebar = ({ title, loadInfo, commentCount, unsyncedCommentCount, loadComments, syncCommentsToSticky, progress, resetSyncedComments, reactionCount, }) => {
+const Sidebar = ({ title, loadInfo, commentCount, unsyncedCommentCount, loadComments, syncCommentsToSticky, progress, resetSyncedComments, reactionCount, commentCountWithUnsyncedReactions, loadReactions, }) => {
     return (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { className: "container" },
         react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("button", { onClick: loadInfo }, "Get board title"),
         react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("br", null),
@@ -20566,7 +20566,7 @@ const Sidebar = ({ title, loadInfo, commentCount, unsyncedCommentCount, loadComm
             title),
         react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("br", null),
         react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("br", null),
-        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("button", { onClick: loadComments }, "Get comments"),
+        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("button", { onClick: loadComments }, "Load comments"),
         react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("br", null),
         react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", null,
             "Number of comments: ",
@@ -20575,6 +20575,12 @@ const Sidebar = ({ title, loadInfo, commentCount, unsyncedCommentCount, loadComm
         react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", null,
             "Number of reactions: ",
             reactionCount),
+        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("br", null),
+        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", null,
+            "Number of comments to sync reactions for: ",
+            commentCountWithUnsyncedReactions),
+        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("br", null),
+        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("button", { onClick: loadReactions }, "Load reactions"),
         react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("br", null),
         react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("button", { onClick: () => syncCommentsToSticky(10) }, "Sync Comment to Sticky"),
         react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("button", { onClick: resetSyncedComments }, "Start again"),
@@ -20591,6 +20597,7 @@ function mapStateToProps(state) {
         title: Object(_ducks_board_info__WEBPACK_IMPORTED_MODULE_2__["selectTitle"])(state),
         commentCount: Object(_ducks_github_comments__WEBPACK_IMPORTED_MODULE_4__["selectCommentCount"])(state),
         reactionCount: Object(_ducks_github_comments__WEBPACK_IMPORTED_MODULE_4__["selectReactionCount"])(state),
+        commentCountWithUnsyncedReactions: Object(_ducks_github_comments__WEBPACK_IMPORTED_MODULE_4__["selectCommentCountWithUnsyncedReactions"])(state),
         unsyncedCommentCount: Object(_ducks_github_comments__WEBPACK_IMPORTED_MODULE_4__["selectUnsyncedCommentCount"])(state),
         progress: Object(_ducks_board_widgets__WEBPACK_IMPORTED_MODULE_3__["selectProgress"])(state),
     };
@@ -20598,6 +20605,7 @@ function mapStateToProps(state) {
 /* harmony default export */ __webpack_exports__["default"] = (Object(react_redux__WEBPACK_IMPORTED_MODULE_1__["connect"])(mapStateToProps, {
     loadInfo: _ducks_board_info__WEBPACK_IMPORTED_MODULE_2__["loadInfo"],
     loadComments: _ducks_github_comments__WEBPACK_IMPORTED_MODULE_4__["loadComments"],
+    loadReactions: _ducks_github_comments__WEBPACK_IMPORTED_MODULE_4__["loadReactions"],
     syncCommentsToSticky: _thunks_commentsToStickies__WEBPACK_IMPORTED_MODULE_5__["syncCommentsToSticky"],
     resetSyncedComments: _ducks_github_comments__WEBPACK_IMPORTED_MODULE_4__["resetSyncedComments"],
 })(Sidebar));
@@ -23670,12 +23678,19 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "loadCommentsFailure", function() { return loadCommentsFailure; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "loadCommentsProgress", function() { return loadCommentsProgress; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "loadCommentsSuccess", function() { return loadCommentsSuccess; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "loadReactionsRequest", function() { return loadReactionsRequest; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "loadReactionsFailure", function() { return loadReactionsFailure; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "loadReactionsProgress", function() { return loadReactionsProgress; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "loadReactionsSuccess", function() { return loadReactionsSuccess; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "resetSyncedComments", function() { return resetSyncedComments; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "recordSyncedComments", function() { return recordSyncedComments; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "reducer", function() { return reducer; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "loadComments", function() { return loadComments; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "loadReactions", function() { return loadReactions; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectCommentCount", function() { return selectCommentCount; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectComment", function() { return selectComment; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectReactionCount", function() { return selectReactionCount; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectCommentCountWithUnsyncedReactions", function() { return selectCommentCountWithUnsyncedReactions; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectUnsyncedCommentCount", function() { return selectUnsyncedCommentCount; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectNextUnsyncedComments", function() { return selectNextUnsyncedComments; });
 /* harmony import */ var lodash_keyBy__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(63);
@@ -23688,34 +23703,62 @@ __webpack_require__.r(__webpack_exports__);
 
 const STORE_MOUNT_POINT = 'github/comments';
 // Action Types
-const GET_COMMENTS_REQUEST = 'github/comments/GET_COMMENTS_REQUEST';
-const GET_COMMENTS_FAILURE = 'github/comments/GET_COMMENTS_FAILURE';
-const GET_COMMENTS_PROGRESS = 'github/comments/GET_COMMENTS_PROGRESS';
-const GET_COMMENTS_SUCCESS = 'github/comments/GET_COMMENTS_SUCCESS';
+const LOAD_COMMENTS_REQUEST = 'github/comments/LOAD_COMMENTS_REQUEST';
+const LOAD_COMMENTS_FAILURE = 'github/comments/LOAD_COMMENTS_FAILURE';
+const LOAD_COMMENTS_PROGRESS = 'github/comments/LOAD_COMMENTS_PROGRESS';
+const LOAD_COMMENTS_SUCCESS = 'github/comments/LOAD_COMMENTS_SUCCESS';
+const LOAD_REACTIONS_REQUEST = 'github/comments/LOAD_REACTIONS_REQUEST';
+const LOAD_REACTIONS_FAILURE = 'github/comments/LOAD_REACTIONS_FAILURE';
+const LOAD_REACTIONS_PROGRESS = 'github/comments/LOAD_REACTIONS_PROGRESS';
+const LOAD_REACTIONS_SUCCESS = 'github/comments/LOAD_REACTIONS_SUCCESS';
 const RESET_SYNCED_COMMENTS = 'github/comments/RESET_SYNCED_COMMENTS';
 const RECORD_SYNCED_COMMENTS = 'github/comments/RECORD_SYNCED_COMMENTS';
 // Action Creators
 function loadCommentsRequest(issue) {
     return {
-        type: GET_COMMENTS_REQUEST,
+        type: LOAD_COMMENTS_REQUEST,
         issue,
     };
 }
 function loadCommentsFailure(err) {
     return {
-        type: GET_COMMENTS_FAILURE,
+        type: LOAD_COMMENTS_FAILURE,
         err,
     };
 }
 function loadCommentsProgress(comments) {
     return {
-        type: GET_COMMENTS_PROGRESS,
+        type: LOAD_COMMENTS_PROGRESS,
         comments,
     };
 }
 function loadCommentsSuccess() {
     return {
-        type: GET_COMMENTS_SUCCESS,
+        type: LOAD_COMMENTS_SUCCESS,
+    };
+}
+function loadReactionsRequest(issue) {
+    return {
+        type: LOAD_REACTIONS_REQUEST,
+        issue,
+    };
+}
+function loadReactionsFailure(err) {
+    return {
+        type: LOAD_REACTIONS_FAILURE,
+        err,
+    };
+}
+function loadReactionsProgress(commentId, reactions) {
+    return {
+        type: LOAD_REACTIONS_PROGRESS,
+        commentId,
+        reactions,
+    };
+}
+function loadReactionsSuccess() {
+    return {
+        type: LOAD_REACTIONS_SUCCESS,
     };
 }
 function resetSyncedComments() {
@@ -23736,22 +23779,38 @@ const defaultState = {
     // TODO: get rid of this field.
     commentsById: {},
     unsyncedCommentIds: [],
+    reactionsByCommentId: {},
 };
 function reducer(state = defaultState, action) {
     switch (action.type) {
-        case GET_COMMENTS_REQUEST: {
+        case LOAD_COMMENTS_REQUEST: {
             return Object.assign({}, state, { commentsById: {}, unsyncedCommentIds: [], loading: action.issue, err: '' });
         }
-        case GET_COMMENTS_FAILURE: {
+        case LOAD_COMMENTS_FAILURE: {
             return Object.assign({}, state, { loading: '', err: action.err });
         }
-        case GET_COMMENTS_PROGRESS: {
+        case LOAD_COMMENTS_PROGRESS: {
             return Object.assign({}, state, { commentsById: Object.assign({}, state.commentsById, lodash_keyBy__WEBPACK_IMPORTED_MODULE_0___default()(action.comments, 'id')), unsyncedCommentIds: [
                     ...state.unsyncedCommentIds,
                     ...action.comments.map(c => c.id)
                 ] });
         }
-        case GET_COMMENTS_SUCCESS: {
+        case LOAD_COMMENTS_SUCCESS: {
+            return Object.assign({}, state, { loading: '' });
+        }
+        case LOAD_REACTIONS_REQUEST: {
+            return Object.assign({}, state, { loading: 'Reactions', err: '' });
+        }
+        case LOAD_REACTIONS_FAILURE: {
+            return Object.assign({}, state, { loading: '', err: action.err });
+        }
+        case LOAD_REACTIONS_PROGRESS: {
+            return Object.assign({}, state, { reactionsByCommentId: Object.assign({}, state.reactionsByCommentId, { [action.commentId]: [
+                        ...(state.reactionsByCommentId[action.commentId] || []),
+                        ...action.reactions,
+                    ] }) });
+        }
+        case LOAD_REACTIONS_SUCCESS: {
             return Object.assign({}, state, { loading: '' });
         }
         case RESET_SYNCED_COMMENTS: {
@@ -23771,28 +23830,47 @@ const FETCH_OPTIONS = {
         Accept: 'application/vnd.github.squirrel-girl-preview'
     }
 };
+const fetchPages = async (url, pageCallback) => {
+    let nextUrl = url;
+    while (nextUrl) {
+        const response = await fetch(nextUrl, FETCH_OPTIONS);
+        let page = await response.json();
+        pageCallback(page);
+        const linkHeader = response.headers.get('Link');
+        const parsed = parse_link_header__WEBPACK_IMPORTED_MODULE_2___default()(linkHeader);
+        nextUrl = parsed && parsed.next ? parsed.next.url : null;
+    }
+};
 const loadComments = () => async (dispatch) => {
     // TODO: allow users to put this into a form somewhere.
     const issue = new URL('https://github.com/rust-lang/rust/pull/59119');
     const [, owner, repo, , issue_number] = issue.pathname.split('/');
-    let nextUrl = `https://api.github.com/repos/${owner}/${repo}/issues/${issue_number}/comments`;
+    let url = `https://api.github.com/repos/${owner}/${repo}/issues/${issue_number}/comments`;
     dispatch(loadCommentsRequest(issue));
-    let comments;
     try {
-        while (nextUrl) {
-            const response = await fetch(nextUrl, FETCH_OPTIONS);
-            comments = await response.json();
-            dispatch(loadCommentsProgress(comments));
-            const linkHeader = response.headers.get('Link');
-            const parsed = parse_link_header__WEBPACK_IMPORTED_MODULE_2___default()(linkHeader);
-            nextUrl = parsed && parsed.next ? parsed.next.url : null;
-        }
+        await fetchPages(url, (comments) => dispatch(loadCommentsProgress(comments)));
     }
     catch (err) {
         dispatch(loadCommentsFailure(err.toString()));
         throw err;
     }
     dispatch(loadCommentsSuccess());
+};
+const loadReactionsForComment = ({ id, reactions: { url } }) => async (dispatch) => {
+    await fetchPages(url, (comments) => dispatch(loadReactionsProgress(id, comments)));
+};
+const loadReactions = () => async (dispatch, getState) => {
+    dispatch(loadReactionsRequest());
+    try {
+        for (const comment of selectCommentsWithUnsyncedReactions(getState())) {
+            await dispatch(loadReactionsForComment(comment));
+        }
+    }
+    catch (err) {
+        dispatch(loadReactionsFailure(err.toString()));
+        throw err;
+    }
+    dispatch(loadReactionsSuccess());
 };
 // Selectors
 const selectCommentCount = Object(reselect__WEBPACK_IMPORTED_MODULE_1__["createSelector"])(state => state[STORE_MOUNT_POINT], here => {
@@ -23801,9 +23879,17 @@ const selectCommentCount = Object(reselect__WEBPACK_IMPORTED_MODULE_1__["createS
     const err = here.err ? here.err.toString() : '';
     return comments + loading + err;
 });
+const selectComment = Object(reselect__WEBPACK_IMPORTED_MODULE_1__["createSelector"])([
+    (state) => state[STORE_MOUNT_POINT],
+    (_, { id }) => id,
+], (here, id) => here.commentsById[id]);
 const selectReactionCount = Object(reselect__WEBPACK_IMPORTED_MODULE_1__["createSelector"])(state => state[STORE_MOUNT_POINT], (here) => {
     return Object.values(here.commentsById).map((c) => (c.reactions || {}).total_count).reduce((a, b) => a + b, 0);
 });
+const selectCommentsWithUnsyncedReactions = Object(reselect__WEBPACK_IMPORTED_MODULE_1__["createSelector"])(state => state[STORE_MOUNT_POINT], (here) => {
+    return Object.values(here.commentsById).filter((c) => (c.reactions.total_count != (here.reactionsByCommentId[c.id] || []).length));
+});
+const selectCommentCountWithUnsyncedReactions = Object(reselect__WEBPACK_IMPORTED_MODULE_1__["createSelector"])(state => selectCommentsWithUnsyncedReactions(state), comments => comments.length);
 const selectUnsyncedCommentCount = Object(reselect__WEBPACK_IMPORTED_MODULE_1__["createSelector"])(state => state[STORE_MOUNT_POINT], (here) => here.unsyncedCommentIds.length);
 const selectNextUnsyncedComments = Object(reselect__WEBPACK_IMPORTED_MODULE_1__["createSelector"])([
     (state) => state[STORE_MOUNT_POINT],

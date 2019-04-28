@@ -7,40 +7,70 @@ export const STORE_MOUNT_POINT = 'github/comments';
 
 // Action Types
 
-const GET_COMMENTS_REQUEST = 'github/comments/GET_COMMENTS_REQUEST';
-const GET_COMMENTS_FAILURE = 'github/comments/GET_COMMENTS_FAILURE';
-const GET_COMMENTS_PROGRESS = 'github/comments/GET_COMMENTS_PROGRESS';
-const GET_COMMENTS_SUCCESS = 'github/comments/GET_COMMENTS_SUCCESS';
-const RESET_SYNCED_COMMENTS = 'github/comments/RESET_SYNCED_COMMENTS';
-const RECORD_SYNCED_COMMENTS = 'github/comments/RECORD_SYNCED_COMMENTS';
 
-interface GetCommentsRequestAction {
-    readonly type: typeof GET_COMMENTS_REQUEST;
+
+const LOAD_COMMENTS_REQUEST = 'github/comments/LOAD_COMMENTS_REQUEST';
+interface LoadCommentsRequestAction {
+    readonly type: typeof LOAD_COMMENTS_REQUEST;
     readonly issue: string;
 }
-interface GetCommentsFailureAction {
-    readonly type: typeof GET_COMMENTS_FAILURE;
+const LOAD_COMMENTS_FAILURE = 'github/comments/LOAD_COMMENTS_FAILURE';
+interface LoadCommentsFailureAction {
+    readonly type: typeof LOAD_COMMENTS_FAILURE;
     readonly err: string;
 }
-interface GetCommentsProgressAction {
-    readonly type: typeof GET_COMMENTS_PROGRESS;
+const LOAD_COMMENTS_PROGRESS = 'github/comments/LOAD_COMMENTS_PROGRESS';
+interface LoadCommentsProgressAction {
+    readonly type: typeof LOAD_COMMENTS_PROGRESS;
     readonly comments: Array<GithubComment>;
 }
-interface GetCommentsSuccessAction {
-    readonly type: typeof GET_COMMENTS_SUCCESS;
+const LOAD_COMMENTS_SUCCESS = 'github/comments/LOAD_COMMENTS_SUCCESS';
+interface LoadCommentsSuccessAction {
+    readonly type: typeof LOAD_COMMENTS_SUCCESS;
 }
+
+
+const LOAD_REACTIONS_REQUEST = 'github/comments/LOAD_REACTIONS_REQUEST';
+interface LoadReactionsRequestAction {
+    readonly type: typeof LOAD_REACTIONS_REQUEST;
+    readonly issue: string;
+}
+const LOAD_REACTIONS_FAILURE = 'github/comments/LOAD_REACTIONS_FAILURE';
+interface LoadReactionsFailureAction {
+    readonly type: typeof LOAD_REACTIONS_FAILURE;
+    readonly err: string;
+}
+const LOAD_REACTIONS_PROGRESS = 'github/comments/LOAD_REACTIONS_PROGRESS';
+interface LoadReactionsProgressAction {
+    readonly type: typeof LOAD_REACTIONS_PROGRESS;
+    readonly commentId: number;
+    readonly reactions: Array<{}>;
+}
+const LOAD_REACTIONS_SUCCESS = 'github/comments/LOAD_REACTIONS_SUCCESS';
+interface LoadReactionsSuccessAction {
+    readonly type: typeof LOAD_REACTIONS_SUCCESS;
+}
+
+
+const RESET_SYNCED_COMMENTS = 'github/comments/RESET_SYNCED_COMMENTS';
 interface ResetSyncedComments {
     readonly type: typeof RESET_SYNCED_COMMENTS;
 }
+const RECORD_SYNCED_COMMENTS = 'github/comments/RECORD_SYNCED_COMMENTS';
 interface RecordSyncedComments {
     readonly type: typeof RECORD_SYNCED_COMMENTS;
     readonly count: number;
 }
+
 type Action = (
-    GetCommentsRequestAction |
-    GetCommentsFailureAction |
-    GetCommentsProgressAction |
-    GetCommentsSuccessAction |
+    LoadCommentsRequestAction |
+    LoadCommentsFailureAction |
+    LoadCommentsProgressAction |
+    LoadCommentsSuccessAction |
+    LoadReactionsRequestAction |
+    LoadReactionsFailureAction |
+    LoadReactionsProgressAction |
+    LoadReactionsSuccessAction |
     ResetSyncedComments |
     RecordSyncedComments);
 
@@ -48,28 +78,56 @@ type Action = (
 
 export function loadCommentsRequest(issue): Action {
     return {
-        type: GET_COMMENTS_REQUEST,
+        type: LOAD_COMMENTS_REQUEST,
         issue,
     };
 }
 
 export function loadCommentsFailure(err: string): Action {
     return {
-        type: GET_COMMENTS_FAILURE,
+        type: LOAD_COMMENTS_FAILURE,
         err,
     };
 }
 
 export function loadCommentsProgress(comments): Action {
     return {
-        type: GET_COMMENTS_PROGRESS,
+        type: LOAD_COMMENTS_PROGRESS,
         comments,
     };
 }
 
 export function loadCommentsSuccess(): Action {
     return {
-        type: GET_COMMENTS_SUCCESS,
+        type: LOAD_COMMENTS_SUCCESS,
+    };
+}
+
+export function loadReactionsRequest(issue): Action {
+    return {
+        type: LOAD_REACTIONS_REQUEST,
+        issue,
+    };
+}
+
+export function loadReactionsFailure(err: string): Action {
+    return {
+        type: LOAD_REACTIONS_FAILURE,
+        err,
+    };
+}
+
+export function loadReactionsProgress(commentId, reactions): Action {
+    return {
+        type: LOAD_REACTIONS_PROGRESS,
+        commentId,
+        reactions,
+    };
+}
+
+export function loadReactionsSuccess(): Action {
+    return {
+        type: LOAD_REACTIONS_SUCCESS,
     };
 }
 
@@ -105,9 +163,10 @@ interface GithubComment {
 interface StoreState {
     loading: string,
     err: string,
-    // TODO: get rid of this field.
     commentsById: { [id: string]: GithubComment},
     unsyncedCommentIds: Array<number>,
+    // TODO: add specific interface for reaction here.
+    reactionsByCommentId: {[id: string]: Array<{}>},
 }
 
 const defaultState : StoreState = {
@@ -116,11 +175,12 @@ const defaultState : StoreState = {
     // TODO: get rid of this field.
     commentsById: {},
     unsyncedCommentIds: [],
+    reactionsByCommentId: {},
 };
 
 export function reducer(state: StoreState = defaultState, action: Action): StoreState {
     switch (action.type) {
-        case GET_COMMENTS_REQUEST: {
+        case LOAD_COMMENTS_REQUEST: {
             return {
                 ...state,
                 commentsById: {},
@@ -129,14 +189,14 @@ export function reducer(state: StoreState = defaultState, action: Action): Store
                 err: '',
             };
         }
-        case GET_COMMENTS_FAILURE: {
+        case LOAD_COMMENTS_FAILURE: {
             return {
                 ...state,
                 loading: '',
                 err: action.err,
             };
         }
-        case GET_COMMENTS_PROGRESS: {
+        case LOAD_COMMENTS_PROGRESS: {
             return {
                 ...state,
                 commentsById: {
@@ -149,7 +209,40 @@ export function reducer(state: StoreState = defaultState, action: Action): Store
                 ],
             };
         }
-        case GET_COMMENTS_SUCCESS: {
+        case LOAD_COMMENTS_SUCCESS: {
+            return {
+                ...state,
+                loading: '',
+            };
+        }
+        case LOAD_REACTIONS_REQUEST: {
+            return {
+                ...state,
+                loading: 'Reactions',
+                err: '',
+            };
+        }
+        case LOAD_REACTIONS_FAILURE: {
+            return {
+                ...state,
+                loading: '',
+                err: action.err,
+            };
+        }
+        case LOAD_REACTIONS_PROGRESS: {
+            return {
+                ...state,
+                reactionsByCommentId: {
+                    ...state.reactionsByCommentId,
+                    [action.commentId]:
+                        [
+                            ...(state.reactionsByCommentId[action.commentId] || []),
+                            ...action.reactions,
+                        ]
+                },
+            };
+        }
+        case LOAD_REACTIONS_SUCCESS: {
             return {
                 ...state,
                 loading: '',
@@ -181,27 +274,56 @@ const FETCH_OPTIONS = {
     }
 }
 
+const  fetchPages = async (url: string, pageCallback: Function) => {
+    let nextUrl = url;
+    while (nextUrl) {
+        const response = await fetch(nextUrl, FETCH_OPTIONS);
+        let page = await response.json();
+        pageCallback(page);
+        const linkHeader = response.headers.get('Link');
+        const parsed = parseLinkHeader(linkHeader);
+        nextUrl = parsed && parsed.next ? parsed.next.url : null;
+    }
+}
+
 export const loadComments = () => async dispatch =>  {
     // TODO: allow users to put this into a form somewhere.
     const issue = new URL('https://github.com/rust-lang/rust/pull/59119')
     const [, owner, repo, , issue_number] = issue.pathname.split('/')
-    let nextUrl = `https://api.github.com/repos/${owner}/${repo}/issues/${issue_number}/comments`
+    let url = `https://api.github.com/repos/${owner}/${repo}/issues/${issue_number}/comments`
     dispatch(loadCommentsRequest(issue));
-    let comments;
     try {
-        while (nextUrl) {
-            const response = await fetch(nextUrl, FETCH_OPTIONS);
-            comments = await response.json();
-            dispatch(loadCommentsProgress(comments));
-            const linkHeader = response.headers.get('Link');
-            const parsed = parseLinkHeader(linkHeader);
-            nextUrl = parsed && parsed.next ? parsed.next.url : null;
-        }
+        await fetchPages(
+            url,
+            (comments) => dispatch(loadCommentsProgress(comments))
+        );
     } catch (err) {
         dispatch(loadCommentsFailure(err.toString()));
         throw err;
     }
     dispatch(loadCommentsSuccess());
+}
+
+const loadReactionsForComment = (
+    {id, reactions: {url}}: GithubComment
+) => async (dispatch) =>  {
+    await fetchPages(
+        url,
+        (comments) => dispatch(loadReactionsProgress(id, comments))
+    );
+}
+
+export const loadReactions = () => async (dispatch, getState) =>  {
+    dispatch(loadReactionsRequest());
+    try {
+        for (const comment of selectCommentsWithUnsyncedReactions(getState())) {
+            await dispatch(loadReactionsForComment(comment));
+        }   
+    } catch (err) {
+        dispatch(loadReactionsFailure(err.toString()));
+        throw err;
+    }
+    dispatch(loadReactionsSuccess());
 }
 
 // Selectors
@@ -216,6 +338,13 @@ export const selectCommentCount = createSelector(
     }
 )
 
+export const selectComment = createSelector(
+    [
+        (state) => state[STORE_MOUNT_POINT],
+        (_, {id}) => id,
+    ],
+    (here: StoreState, id: number) => here.commentsById[id]
+)
 
 export const selectReactionCount = createSelector(
     state => state[STORE_MOUNT_POINT],
@@ -227,6 +356,24 @@ export const selectReactionCount = createSelector(
             0,
         )
     }
+)
+
+const selectCommentsWithUnsyncedReactions = createSelector(
+    state => state[STORE_MOUNT_POINT],
+    (here: StoreState): Array<GithubComment> => {
+        return Object.values(here.commentsById).filter(
+            (c: GithubComment) => (
+                c.reactions.total_count != (
+                    here.reactionsByCommentId[c.id] || []
+                ).length
+            )
+        )
+    }
+)
+
+export const selectCommentCountWithUnsyncedReactions = createSelector(
+    state => selectCommentsWithUnsyncedReactions(state),
+    comments => comments.length,
 )
 
 export const selectUnsyncedCommentCount = createSelector(
