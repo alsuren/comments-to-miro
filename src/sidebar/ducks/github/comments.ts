@@ -2,6 +2,7 @@ import keyBy from 'lodash/keyBy';
 
 import {createSelector} from 'reselect';
 import parseLinkHeader from 'parse-link-header';
+import { userInfo } from 'os';
 export const STORE_MOUNT_POINT = 'github/comments';
 
 
@@ -33,7 +34,6 @@ interface LoadCommentsSuccessAction {
 const LOAD_REACTIONS_REQUEST = 'github/comments/LOAD_REACTIONS_REQUEST';
 interface LoadReactionsRequestAction {
     readonly type: typeof LOAD_REACTIONS_REQUEST;
-    readonly issue: string;
 }
 const LOAD_REACTIONS_FAILURE = 'github/comments/LOAD_REACTIONS_FAILURE';
 interface LoadReactionsFailureAction {
@@ -44,7 +44,7 @@ const LOAD_REACTIONS_PROGRESS = 'github/comments/LOAD_REACTIONS_PROGRESS';
 interface LoadReactionsProgressAction {
     readonly type: typeof LOAD_REACTIONS_PROGRESS;
     readonly commentId: number;
-    readonly reactions: Array<{}>;
+    readonly reactions: Array<Reaction>;
 }
 const LOAD_REACTIONS_SUCCESS = 'github/comments/LOAD_REACTIONS_SUCCESS';
 interface LoadReactionsSuccessAction {
@@ -103,10 +103,9 @@ export function loadCommentsSuccess(): Action {
     };
 }
 
-export function loadReactionsRequest(issue): Action {
+export function loadReactionsRequest(): Action {
     return {
         type: LOAD_REACTIONS_REQUEST,
-        issue,
     };
 }
 
@@ -144,8 +143,20 @@ export function recordSyncedComments(count): Action {
     };
 }
 
+interface User {
+    login: string
+    type: "User"
+}
+
+interface Reaction {
+    id: number,
+    user: User
+    content: "+1" | "-1" | "laugh" | "confused" | "heart" | "hooray",
+}
+
 interface GithubComment {
     id: number;
+    user: User
 
     reactions: {
         "total_count": number,
@@ -166,7 +177,7 @@ interface StoreState {
     commentsById: { [id: string]: GithubComment},
     unsyncedCommentIds: Array<number>,
     // TODO: add specific interface for reaction here.
-    reactionsByCommentId: {[id: string]: Array<{}>},
+    reactionsByCommentId: {[id: string]: Array<Reaction>},
 }
 
 const defaultState : StoreState = {
@@ -390,4 +401,24 @@ export const selectNextUnsyncedComments = createSelector(
         const ids = here.unsyncedCommentIds.slice(0, count);
         return ids.map(id => here.commentsById[id]);
     }
+)
+
+export const selectUserConnectionMatrix = createSelector(
+    (state) => state[STORE_MOUNT_POINT],
+    (here: StoreState) => {
+        let connectionMatrix : {
+            [user: string]: {[user: string]: number}
+        } = {};
+        for (const commentId in here.reactionsByCommentId) {
+            const comment = here.commentsById[commentId];
+            let commentAuthorRow = connectionMatrix[comment.user.login] || {};
+            for (const reaction of here.reactionsByCommentId[commentId]) {
+                commentAuthorRow[reaction.user.login] = (
+                    commentAuthorRow[reaction.user.login] || 0
+                ) + 1;
+            }
+            connectionMatrix[comment.user.login] = commentAuthorRow;
+        }
+    }
+
 )

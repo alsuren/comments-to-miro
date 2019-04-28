@@ -23693,6 +23693,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectCommentCountWithUnsyncedReactions", function() { return selectCommentCountWithUnsyncedReactions; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectUnsyncedCommentCount", function() { return selectUnsyncedCommentCount; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectNextUnsyncedComments", function() { return selectNextUnsyncedComments; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectUserConnectionMatrix", function() { return selectUserConnectionMatrix; });
 /* harmony import */ var lodash_keyBy__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(63);
 /* harmony import */ var lodash_keyBy__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(lodash_keyBy__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var reselect__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(60);
@@ -23737,10 +23738,9 @@ function loadCommentsSuccess() {
         type: LOAD_COMMENTS_SUCCESS,
     };
 }
-function loadReactionsRequest(issue) {
+function loadReactionsRequest() {
     return {
         type: LOAD_REACTIONS_REQUEST,
-        issue,
     };
 }
 function loadReactionsFailure(err) {
@@ -23897,6 +23897,17 @@ const selectNextUnsyncedComments = Object(reselect__WEBPACK_IMPORTED_MODULE_1__[
 ], (here, count) => {
     const ids = here.unsyncedCommentIds.slice(0, count);
     return ids.map(id => here.commentsById[id]);
+});
+const selectUserConnectionMatrix = Object(reselect__WEBPACK_IMPORTED_MODULE_1__["createSelector"])((state) => state[STORE_MOUNT_POINT], (here) => {
+    let connectionMatrix = {};
+    for (const commentId in here.reactionsByCommentId) {
+        const comment = here.commentsById[commentId];
+        let commentAuthorRow = connectionMatrix[comment.user.login] || {};
+        for (const reaction of here.reactionsByCommentId[commentId]) {
+            commentAuthorRow[reaction.user.login] = (commentAuthorRow[reaction.user.login] || 0) + 1;
+        }
+        connectionMatrix[comment.user.login] = commentAuthorRow;
+    }
 });
 
 
